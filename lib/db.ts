@@ -172,42 +172,77 @@ export const db = {
   },
   async generateBillsForPeriod(societyId: string, period: string, baseAmount = 3000): Promise<number> {
     const sb = client();
+    console.log(`[generateBills] Starting for society=${societyId} period=${period} amount=${baseAmount}`);
+
+    // 1. Fetch all data upfront in parallel — eliminates the N+1 query problem
     const flats = await this.listFlats(societyId);
-    let created = 0;
-    for (const flat of flats) {
-      const { data: existing } = await sb
-        .from("bills")
-        .select("id")
-        .eq("flat_id", flat.id)
-        .eq("period", period)
-        .maybeSingle();
-      if (existing) continue;
+    if (flats.length === 0) {
+      console.log("[generateBills] No flats found, aborting.");
+      return 0;
+    }
+    const flatIds = flats.map((f) => f.id);
+    console.log(`[generateBills] Processing ${flats.length} flat(s)`);
 
-      // Pull approved-but-unbilled facility bookings for this flat.
-      const { data: pending } = await sb
-        .from("bookings")
-        .select("id, facility_id, date")
-        .eq("flat_id", flat.id)
-        .eq("status", "approved")
-        .eq("fee_billed", false);
+    // 2. Bulk-fetch all existing bills for this period (single query, not one per flat)
+    const { data: existingBills } = await sb
+      .from("bills")
+      .select("flat_id")
+      .eq("period", period)
+      .in("flat_id", flatIds);
+    const alreadyBilledFlatIds = new Set((existingBills ?? []).map((b: any) => b.flat_id as string));
+    const flatsToProcess = flats.filter((f) => !alreadyBilledFlatIds.has(f.id));
+    console.log(`[generateBills] ${alreadyBilledFlatIds.size} already billed, ${flatsToProcess.length} to create`);
 
+    if (flatsToProcess.length === 0) return 0;
+
+    // 3. Bulk-fetch all approved unbilled bookings for these flats (single query)
+    const { data: allPendingBookings } = await sb
+      .from("bookings")
+      .select("id, flat_id, facility_id, date")
+      .in("flat_id", flatIds)
+      .eq("status", "approved")
+      .eq("fee_billed", false);
+
+    // 4. Bulk-fetch all distinct facilities referenced (single query)
+    const facilityIds = Array.from(new Set((allPendingBookings ?? []).map((b: any) => b.facility_id as string)));
+    let facById = new Map<string, { name: string; fee: number }>();
+    if (facilityIds.length > 0) {
+      const { data: facs } = await sb.from("facilities").select("id, name, fee").in("id", facilityIds);
+      for (const f of facs ?? []) facById.set(f.id, { name: f.name, fee: f.fee });
+    }
+
+    // 5. Build booking lookup by flat
+    const bookingsByFlat = new Map<string, Array<{ id: string; facility_id: string; date: string }>>();
+    for (const bk of allPendingBookings ?? []) {
+      if (!bookingsByFlat.has(bk.flat_id)) bookingsByFlat.set(bk.flat_id, []);
+      bookingsByFlat.get(bk.flat_id)!.push(bk as any);
+    }
+
+    // 6. Compute bills + collect booking IDs to mark billed
+    const billRows: Array<{
+      flat_id: string;
+      period: string;
+      amount: number;
+      status: string;
+      due_date: string;
+      line_items: any;
+    }> = [];
+    const bookingIdsToMark: string[] = [];
+
+    for (const flat of flatsToProcess) {
+      const bookings = bookingsByFlat.get(flat.id) ?? [];
       const lineItems: Array<{ label: string; amount: number }> = [
         { label: "Maintenance", amount: baseAmount },
       ];
       let amount = baseAmount;
-      for (const bk of pending ?? []) {
-        const { data: fac } = await sb
-          .from("facilities")
-          .select("name, fee")
-          .eq("id", bk.facility_id)
-          .maybeSingle();
+      for (const bk of bookings) {
+        const fac = facById.get(bk.facility_id);
         if (!fac) continue;
         lineItems.push({ label: `${fac.name} booking (${bk.date})`, amount: fac.fee });
         amount += fac.fee;
-        await sb.from("bookings").update({ fee_billed: true }).eq("id", bk.id);
+        bookingIdsToMark.push(bk.id);
       }
-
-      await sb.from("bills").insert({
+      billRows.push({
         flat_id: flat.id,
         period,
         amount,
@@ -215,9 +250,31 @@ export const db = {
         due_date: `${period}-15`,
         line_items: lineItems.length > 1 ? lineItems : null,
       });
-      created++;
     }
-    return created;
+
+    // 7. Single batch insert for all bills
+    const { error: insertError } = await sb.from("bills").insert(billRows);
+    if (insertError) {
+      console.error("[generateBills] Batch insert failed:", insertError);
+      throw new Error(insertError.message);
+    }
+    console.log(`[generateBills] Inserted ${billRows.length} bill(s)`);
+
+    // 8. Mark bookings as billed (batch update)
+    if (bookingIdsToMark.length > 0) {
+      const { error: updateError } = await sb
+        .from("bookings")
+        .update({ fee_billed: true })
+        .in("id", bookingIdsToMark);
+      if (updateError) {
+        console.error("[generateBills] Failed to mark bookings as billed:", updateError);
+        // Non-fatal — bills were created, just log the issue
+      } else {
+        console.log(`[generateBills] Marked ${bookingIdsToMark.length} booking(s) as billed`);
+      }
+    }
+
+    return billRows.length;
   },
   async markBillPaid(billId: string): Promise<boolean> {
     const sb = client();

@@ -9,12 +9,27 @@ import { NudgeLink } from "@/components/nudge";
 
 async function generateBillsAction(formData: FormData) {
   "use server";
-  const user = await requireRole("admin");
-  const period = String(formData.get("period") ?? currentPeriod());
-  const amount = Number(formData.get("amount") ?? 3000);
-  await db.generateBillsForPeriod(user.society_id, period, amount);
-  revalidatePath("/admin/bills");
-  redirect("/admin/bills");
+  try {
+    const user = await requireRole("admin");
+    const period = String(formData.get("period") ?? currentPeriod()).trim();
+    const amount = Number(formData.get("amount") ?? 3000);
+
+    if (!/^\d{4}-\d{2}$/.test(period)) {
+      redirect("/admin/bills?error=" + encodeURIComponent("Invalid period format. Use YYYY-MM."));
+    }
+    if (isNaN(amount) || amount < 0) {
+      redirect("/admin/bills?error=" + encodeURIComponent("Invalid amount."));
+    }
+
+    const created = await db.generateBillsForPeriod(user.society_id, period, amount);
+    revalidatePath("/admin/bills");
+    redirect("/admin/bills?success=" + encodeURIComponent(`Generated ${created} bill(s) for ${period}.`));
+  } catch (err: any) {
+    // Next.js redirect() throws internally — let it propagate normally
+    if (err?.digest?.startsWith("NEXT_REDIRECT")) throw err;
+    console.error("[generateBillsAction] Failed:", err);
+    redirect("/admin/bills?error=" + encodeURIComponent(err?.message ?? "Failed to generate bills."));
+  }
 }
 
 async function markPaidAction(formData: FormData) {
@@ -26,9 +41,11 @@ async function markPaidAction(formData: FormData) {
   redirect("/admin/bills");
 }
 
-export default async function AdminBillsPage({ searchParams }: { searchParams: { period?: string } }) {
+export default async function AdminBillsPage({ searchParams }: { searchParams: { period?: string; error?: string; success?: string } }) {
   const user = await requireRole("admin");
   const period = searchParams.period ?? currentPeriod();
+  const errorMsg = searchParams.error;
+  const successMsg = searchParams.success;
   const [bills, allBills, flats, owners] = await Promise.all([
     db.listBills(user.society_id, period),
     db.listBills(user.society_id),
@@ -52,6 +69,20 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
           </Link>
         }
       />
+
+      {/* Success / Error feedback banners */}
+      {successMsg && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-400">
+          <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+          {successMsg}
+        </div>
+      )}
+      {errorMsg && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400">
+          <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          {errorMsg}
+        </div>
+      )}
 
       <Card>
         <CardHeader title="Generate bills" subtitle="Idempotent — running twice for the same month is safe." />
