@@ -95,7 +95,8 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
               <select
                 name="period"
                 defaultValue={period}
-                className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm"
+                style={{ color: '#0f172a' }}
+                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-sm font-medium shadow-sm"
               >
                 {allPeriods.map((p) => (
                   <option key={p} value={p}>
@@ -116,13 +117,13 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
-                    <th className="py-2 pr-4">Flat</th>
-                    <th className="py-2 pr-4">Owner</th>
-                    <th className="py-2 pr-4">Amount</th>
-                    <th className="py-2 pr-4">Due</th>
-                    <th className="py-2 pr-4">Status</th>
-                    <th className="py-2 pr-4">Actions</th>
+                  <tr className="border-b border-slate-700/50 dark:border-slate-700 text-left text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-500">
+                    <th className="py-3 pr-4">Flat</th>
+                    <th className="py-3 pr-4">Owner</th>
+                    <th className="py-3 pr-4">Amount</th>
+                    <th className="py-3 pr-4">Due</th>
+                    <th className="py-3 pr-4">Status</th>
+                    <th className="py-3 pr-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -130,22 +131,25 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
                     const flat = flatById.get(bill.flat_id);
                     const owner = flat?.owner_user_id ? ownerById.get(flat.owner_user_id) : undefined;
                     return (
-                      <tr key={bill.id} className="border-b border-slate-100">
-                        <td className="py-2 pr-4 font-medium text-slate-900">
+                      <tr key={bill.id} className="border-b border-slate-800/40 dark:border-slate-700/50 transition-colors hover:bg-slate-50/5">
+                        <td className="py-3 pr-4 font-semibold text-slate-900 dark:text-slate-100">
                           {flat?.block}-{flat?.number}
                         </td>
-                        <td className="py-2 pr-4 text-slate-700">{owner?.name ?? "—"}</td>
-                        <td className="py-2 pr-4 text-slate-900">{fmtINR(bill.amount)}</td>
-                        <td className="py-2 pr-4 text-slate-500">{bill.due_date}</td>
-                        <td className="py-2 pr-4">
-                          {bill.status === "paid" ? <Badge tone="green">paid</Badge> : <Badge tone="amber">unpaid</Badge>}
+                        <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{owner?.name ?? "—"}</td>
+                        <td className="py-3 pr-4 font-bold text-slate-900 dark:text-white">{fmtINR(bill.amount)}</td>
+                        <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">{bill.due_date}</td>
+                        <td className="py-3 pr-4">
+                          {bill.status === "paid"
+                            ? <Badge tone="green">paid</Badge>
+                            : <span className="inline-flex items-center rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-orange-500">unpaid</span>
+                          }
                         </td>
                         <td className="py-2 pr-4">
                           {bill.status === "unpaid" ? (
                             <div className="flex items-center gap-2">
                               <form action={markPaidAction}>
                                 <input type="hidden" name="billId" value={bill.id} />
-                                <Button variant="secondary" type="submit">
+                                <Button variant="secondary" type="submit" className="border-slate-300 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">
                                   Mark paid
                                 </Button>
                               </form>
