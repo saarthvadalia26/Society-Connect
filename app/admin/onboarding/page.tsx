@@ -75,9 +75,9 @@ export default async function OnboardingPage() {
       />
 
       {allDone ? (
-        <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center">
-          <div className="text-lg font-semibold text-emerald-900">Setup complete!</div>
-          <p className="mt-1 text-sm text-emerald-700">
+        <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-5 text-center dark:border-emerald-800 dark:bg-emerald-900/20">
+          <div className="text-lg font-semibold text-emerald-900 dark:text-emerald-300">Setup complete!</div>
+          <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-400">
             Your society is ready. Residents can sign in and start using the portal.
           </p>
           <Link
@@ -96,19 +96,19 @@ export default async function OnboardingPage() {
               <CardBody className="flex items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-900">{step.title}</span>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{step.title}</span>
                     {step.done ? (
                       <Badge tone="green">Done</Badge>
                     ) : (
                       <Badge tone="amber">To do</Badge>
                     )}
                   </div>
-                  <div className="mt-0.5 text-xs text-slate-500">{step.description}</div>
+                  <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{step.description}</div>
                   {step.count && step.done ? (
                     <div className="mt-1 text-[11px] text-slate-400">{step.count}</div>
                   ) : null}
                 </div>
-                <span className="text-xs text-brand-600">Open →</span>
+                <span className="text-xs text-brand-600 dark:text-brand-400">Open →</span>
               </CardBody>
             </Card>
           </Link>

@@ -19,18 +19,22 @@ export function SubmitButton({
 
   const base = variant === "danger"
     ? "bg-red-600 hover:bg-red-700 shadow-sm"
-    : "bg-gradient-to-r from-brand-600 to-blue-700 shadow-md hover:shadow-lg hover:from-brand-700 hover:to-blue-800";
+    : "relative overflow-hidden bg-brand-600 shadow-md hover:shadow-lg hover:bg-brand-700 hover:-translate-y-[1px]";
 
   return (
     <button
       type="submit"
       disabled={pending}
       className={cn(
-        "inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all active:scale-[0.98]",
+        "group inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all active:scale-[0.98]",
         pending ? "opacity-70 cursor-wait" : base,
         className,
       )}
     >
+      {/* Subtle Shimmer Effect Loop */}
+      {!pending && variant !== "danger" && (
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      )}
       {pending ? (
         <>
           <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />

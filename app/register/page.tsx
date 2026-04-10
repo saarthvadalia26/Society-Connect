@@ -1,162 +1,62 @@
-import { redirect } from "next/navigation";
-import { supabaseServer } from "@/lib/supabase";
-import { Card, CardBody, Label, Input } from "@/components/ui";
-import { SubmitButton } from "@/components/submit-button";
-import { PasswordInput } from "@/components/password-input";
-import { getCurrentUser } from "@/lib/auth";
+import { RegistrationWizard } from "./wizard";
 
-interface PageProps {
-  searchParams: { error?: string; success?: string };
-}
+export const metadata = {
+  title: "Register - Society Connect",
+  description: "Set up your society in minutes.",
+};
 
-async function registerAction(formData: FormData) {
-  "use server";
-  const name = String(formData.get("name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
-  const society = String(formData.get("society") ?? "").trim();
-  const address = String(formData.get("address") ?? "").trim();
-
-  if (!name || !email || !password || !society) {
-    redirect("/register?error=" + encodeURIComponent("All fields except address are required."));
-  }
-  if (password.length < 6) {
-    redirect("/register?error=" + encodeURIComponent("Password must be at least 6 characters."));
-  }
-
-  const supabase = supabaseServer();
-
-  await supabase.auth.signUp({ email, password, options: { data: { name } } });
-
-  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-  if (signInError) {
-    redirect("/register?error=" + encodeURIComponent(signInError.message));
-  }
-
-  const { data: existing } = await supabase
-    .from("app_users")
-    .select("id")
-    .ilike("email", email)
-    .maybeSingle();
-  if (existing) {
-    redirect("/admin/onboarding");
-  }
-
-  const { data: societyRow, error: socError } = await supabase
-    .from("societies")
-    .insert({ name: society, address: address || "" })
-    .select("id")
-    .single();
-  if (socError || !societyRow) {
-    redirect("/register?error=" + encodeURIComponent("Failed to create society: " + (socError?.message ?? "")));
-  }
-
-  const { error: userError } = await supabase.from("app_users").insert({
-    email,
-    name,
-    role: "admin",
-    society_id: societyRow.id,
-  });
-  if (userError) {
-    redirect("/register?error=" + encodeURIComponent("Failed to create profile: " + userError.message));
-  }
-
-  redirect("/admin/onboarding");
-}
-
-export default function RegisterPage({ searchParams }: PageProps) {
-  const errorMsg = searchParams.error;
-
+export default function RegisterPage() {
   return (
-    <main className="flex min-h-screen">
-      {/* Left: gradient hero */}
-      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-emerald-700 via-teal-800 to-cyan-900 p-12 text-white lg:flex">
-        <div>
+    <main className="flex min-h-screen bg-slate-50">
+      {/* Left: Premium Dark Marketing Panel (Deep Navy) */}
+      <div className="hidden relative w-1/2 flex-col justify-between overflow-hidden bg-slate-900 bg-grid-pattern-slate p-12 text-white lg:flex">
+        
+        {/* Subtle glow effect behind content */}
+        <div className="absolute top-0 left-0 -mt-[20%] -ml-[20%] h-[60%] w-[60%] rounded-full bg-slate-800/50 blur-[100px]" />
+        
+        <div className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 text-lg font-bold backdrop-blur-sm">SC</div>
-            <span className="text-lg font-bold">Society Connect</span>
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-lg font-bold backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.05)] border border-white/10">
+              SC
+            </div>
+            <span className="text-lg font-semibold tracking-wide text-slate-200">Society Connect</span>
           </div>
         </div>
-        <div>
-          <h2 className="text-4xl font-bold leading-tight">Register your<br />society today.</h2>
-          <p className="mt-4 max-w-md text-base leading-relaxed text-emerald-100">
-            Set up in under 2 minutes. Add your flats, invite residents, and start collecting maintenance digitally. No more paper registers.
+        
+        <div className="relative z-10 mt-24 mb-auto">
+          <h2 className="text-[2.75rem] font-bold leading-[1.1] tracking-tight">
+            Trust & Security <br />
+            <span className="text-slate-400">for your society.</span>
+          </h2>
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300 font-light">
+            Empower your community with a single, secure platform. Manage finances, verify visitors, and connect residents effortlessly.
           </p>
-          <div className="mt-8 flex gap-6 text-sm text-emerald-200/80">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-[10px]">✓</span>
-              Free to start
+          
+          <div className="mt-12 flex gap-8 text-sm text-slate-300 font-medium">
+            <div className="flex items-center gap-3">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              </span>
+              Bank-grade security
             </div>
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-[10px]">✓</span>
-              No credit card
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-[10px]">✓</span>
-              UPI ready
+            <div className="flex items-center gap-3">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              </span>
+              UPI Integrated
             </div>
           </div>
         </div>
-        <div className="text-sm text-emerald-200/60">
-          Join hundreds of societies simplifying their management
+        
+        <div className="relative z-10 text-sm font-medium text-slate-500 flex items-center gap-2">
+          <svg className="h-4 w-4 text-slate-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
+          Encrypted Data storage
         </div>
       </div>
 
-      {/* Right: form */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
-          <div className="mb-8 text-center lg:text-left">
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-xl font-bold text-white shadow-lg lg:hidden">
-              SC
-            </div>
-            <h1 className="text-2xl font-bold text-slate-900">Create your society</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              You'll become the first secretary. You can transfer this role later.
-            </p>
-          </div>
-
-          <Card>
-            <CardBody>
-              <form action={registerAction} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Your name</Label>
-                  <Input id="name" name="name" required placeholder="e.g. Priya Mehta" />
-                </div>
-                <div>
-                  <Label htmlFor="email">Email address</Label>
-                  <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
-                </div>
-                <div>
-                  <Label htmlFor="password">Password (min 6 characters)</Label>
-                  <PasswordInput id="password" name="password" autoComplete="new-password" required minLength={6} />
-                </div>
-                <div className="border-t border-slate-100 pt-4">
-                  <Label htmlFor="society">Society name</Label>
-                  <Input id="society" name="society" required placeholder="e.g. Greenwood Heights" />
-                </div>
-                <div>
-                  <Label htmlFor="address">Society address (optional)</Label>
-                  <Input id="address" name="address" placeholder="e.g. Sector 21, Pune, MH 411014" />
-                </div>
-                {errorMsg ? (
-                  <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-800">
-                    {errorMsg}
-                  </div>
-                ) : null}
-                <SubmitButton loadingText="Registering your society...">
-                  Register
-                </SubmitButton>
-              </form>
-            </CardBody>
-          </Card>
-
-          <p className="mt-6 text-center text-sm text-slate-500">
-            Already registered?{" "}
-            <a href="/login" className="font-semibold text-brand-600 hover:text-brand-700 hover:underline">
-              Sign in
-            </a>
-          </p>
-        </div>
+      {/* Right: Registration Form */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 sm:px-12">
+        <RegistrationWizard />
       </div>
     </main>
   );
