@@ -31,9 +31,15 @@ export function Sidebar({ user, items, brand }: { user: User; items: NavItem[]; 
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {items.map((item) => {
+          // A nav item is a "parent" if any other sibling item starts with its href + "/".
+          // In that case, only use exact match to avoid the active state leaking into children.
+          const hasChildSibling = items.some(
+            (other) => other.href !== item.href && other.href.startsWith(item.href + "/")
+          );
           const isRoot = item.href === "/admin" || item.href === "/resident" || item.href === "/guard";
-          const isActive = pathname === item.href ||
-            (!isRoot && (pathname === item.href || pathname.startsWith(item.href + "/")));
+          const isActive =
+            pathname === item.href ||
+            (!isRoot && !hasChildSibling && pathname.startsWith(item.href + "/"));
           return (
             <Link
               key={item.href}
