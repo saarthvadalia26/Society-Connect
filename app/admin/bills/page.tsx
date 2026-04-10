@@ -63,7 +63,7 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
                 name="period"
                 defaultValue={currentPeriod()}
                 pattern="\d{4}-\d{2}"
-                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
             <div>
@@ -73,7 +73,7 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
                 type="number"
                 defaultValue={3000}
                 min={0}
-                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               />
             </div>
             <Button type="submit">Generate bills</Button>
