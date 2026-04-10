@@ -58,24 +58,26 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
         <CardBody>
           <form action={generateBillsAction} className="flex flex-wrap items-end gap-3">
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Period (YYYY-MM)</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Period (YYYY-MM)</label>
               <input
                 name="period"
                 defaultValue={currentPeriod()}
                 pattern="\d{4}-\d{2}"
                 placeholder="e.g. 2026-04"
-                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 dark:text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                style={{ color: '#0f172a' }}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium placeholder:text-slate-400 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Amount per flat (₹)</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Amount per flat (₹)</label>
               <input
                 name="amount"
                 type="number"
                 defaultValue={3000}
                 min={0}
                 placeholder="e.g. 3000"
-                className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 dark:text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                style={{ color: '#0f172a' }}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium placeholder:text-slate-400 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <Button type="submit">Generate bills</Button>
