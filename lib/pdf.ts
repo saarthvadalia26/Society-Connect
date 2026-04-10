@@ -1,0 +1,169 @@
+// Server-side PDF generation with jspdf. Used by route handlers in /app/api/*.
+
+import { jsPDF } from "jspdf";
+import type { Bill, Expense, Flat, Society, User } from "./types";
+import { fmtPeriod } from "./db";
+
+const FMT_INR = (n: number) =>
+  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+
+function header(doc: jsPDF, society: Society, title: string) {
+  doc.setFillColor(37, 99, 235); // brand-600
+  doc.rect(0, 0, 210, 28, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text(society.name, 14, 14);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(society.address, 14, 21);
+  doc.setFontSize(11);
+  doc.text(title, 196, 18, { align: "right" });
+  doc.setTextColor(15, 23, 42);
+}
+
+export function buildReceiptPdf({
+  society,
+  flat,
+  owner,
+  bill,
+}: {
+  society: Society;
+  flat: Flat;
+  owner: User | undefined;
+  bill: Bill;
+}): Uint8Array {
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  header(doc, society, "MAINTENANCE RECEIPT");
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Receipt no: ${bill.serial_no ?? "—"}`, 14, 42);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Issued: ${bill.paid_at ? new Date(bill.paid_at).toLocaleDateString("en-IN") : "—"}`, 14, 49);
+  doc.text(`Period: ${fmtPeriod(bill.period)}`, 14, 56);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Received from", 14, 70);
+  doc.setFont("helvetica", "normal");
+  doc.text(`${owner?.name ?? "—"}`, 14, 77);
+  doc.text(`Flat ${flat.block}-${flat.number}`, 14, 83);
+  if (owner?.email) doc.text(owner.email, 14, 89);
+
+  // Line items
+  let y = 105;
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, y - 5, 182, 8, "F");
+  doc.setFont("helvetica", "bold");
+  doc.text("Description", 16, y);
+  doc.text("Amount", 194, y, { align: "right" });
+  y += 8;
+  doc.setFont("helvetica", "normal");
+  const items = bill.line_items ?? [{ label: `Maintenance — ${fmtPeriod(bill.period)}`, amount: bill.amount }];
+  for (const item of items) {
+    doc.text(item.label, 16, y);
+    doc.text(FMT_INR(item.amount), 194, y, { align: "right" });
+    y += 7;
+  }
+
+  y += 4;
+  doc.setDrawColor(203, 213, 225);
+  doc.line(14, y, 196, y);
+  y += 8;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.text("Total paid", 16, y);
+  doc.text(FMT_INR(bill.amount), 194, y, { align: "right" });
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 116, 139);
+  doc.text(
+    "This is a system-generated receipt from Society Connect. No signature required.",
+    14,
+    285,
+  );
+
+  return doc.output("arraybuffer") as unknown as Uint8Array;
+}
+
+export function buildYearlySummaryPdf({
+  society,
+  year,
+  bills,
+  expenses,
+  collected,
+  outstanding,
+  totalExpenses,
+  net,
+}: {
+  society: Society;
+  year: number;
+  bills: Bill[];
+  expenses: Expense[];
+  collected: number;
+  outstanding: number;
+  totalExpenses: number;
+  net: number;
+}): Uint8Array {
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  header(doc, society, `FINANCIAL SUMMARY · ${year}`);
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text("Headline figures", 14, 42);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Collected:   ${FMT_INR(collected)}`, 14, 50);
+  doc.text(`Outstanding: ${FMT_INR(outstanding)}`, 14, 57);
+  doc.text(`Expenses:    ${FMT_INR(totalExpenses)}`, 14, 64);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Net:         ${FMT_INR(net)}`, 14, 71);
+
+  // Monthly breakdown
+  doc.setFont("helvetica", "bold");
+  doc.text("Monthly collection", 14, 86);
+  doc.setFont("helvetica", "normal");
+  let y = 94;
+  for (let m = 1; m <= 12; m++) {
+    const period = `${year}-${String(m).padStart(2, "0")}`;
+    const periodBills = bills.filter((b) => b.period === period);
+    if (periodBills.length === 0) continue;
+    const c = periodBills.filter((b) => b.status === "paid").reduce((s, b) => s + b.amount, 0);
+    const o = periodBills.filter((b) => b.status === "unpaid").reduce((s, b) => s + b.amount, 0);
+    doc.text(fmtPeriod(period), 16, y);
+    doc.text(`Collected ${FMT_INR(c)}`, 90, y);
+    doc.text(`Outstanding ${FMT_INR(o)}`, 150, y);
+    y += 6;
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+    }
+  }
+
+  // Expenses
+  if (y > 240) {
+    doc.addPage();
+    y = 20;
+  } else {
+    y += 8;
+  }
+  doc.setFont("helvetica", "bold");
+  doc.text("Expense entries", 14, y);
+  y += 6;
+  doc.setFont("helvetica", "normal");
+  for (const e of expenses) {
+    if (y > 280) {
+      doc.addPage();
+      y = 20;
+    }
+    doc.text(`${e.spent_on}  ${e.category} — ${e.vendor}`, 16, y);
+    doc.text(FMT_INR(e.amount), 194, y, { align: "right" });
+    y += 6;
+  }
+
+  doc.setFontSize(9);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Generated by Society Connect on ${new Date().toLocaleDateString("en-IN")}`, 14, 290);
+
+  return doc.output("arraybuffer") as unknown as Uint8Array;
+}
