@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase";
 import { getCurrentUser } from "@/lib/auth";
 import { Card, CardBody, CardHeader, Label, Input } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
+import { PasswordInput } from "@/components/password-input";
 
 interface PageProps {
   searchParams: { error?: string; success?: string };
@@ -74,8 +75,13 @@ export default function LoginPage({ searchParams }: PageProps) {
                   <Input id="email" name="email" type="email" autoComplete="email" required placeholder="you@example.com" />
                 </div>
                 <div>
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" autoComplete="current-password" required />
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <a href="/forgot-password" className="text-xs font-medium text-brand-600 hover:text-brand-700 hover:underline">
+                      Forgot password?
+                    </a>
+                  </div>
+                  <PasswordInput id="password" name="password" autoComplete="current-password" required />
                 </div>
                 {successMsg ? (
                   <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-800">

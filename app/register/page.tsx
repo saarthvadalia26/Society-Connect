@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase";
 import { Card, CardBody, Label, Input } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
+import { PasswordInput } from "@/components/password-input";
 import { getCurrentUser } from "@/lib/auth";
 
 interface PageProps {
@@ -127,7 +128,7 @@ export default function RegisterPage({ searchParams }: PageProps) {
                 </div>
                 <div>
                   <Label htmlFor="password">Password (min 6 characters)</Label>
-                  <Input id="password" name="password" type="password" autoComplete="new-password" required minLength={6} />
+                  <PasswordInput id="password" name="password" autoComplete="new-password" required minLength={6} />
                 </div>
                 <div className="border-t border-slate-100 pt-4">
                   <Label htmlFor="society">Society name</Label>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Input, Label } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
+import { PasswordInput } from "@/components/password-input";
 
 export function AddMemberForm({ action }: { action: (formData: FormData) => Promise<void> }) {
   const [role, setRole] = useState("resident");
@@ -19,7 +20,7 @@ export function AddMemberForm({ action }: { action: (formData: FormData) => Prom
       </div>
       <div>
         <Label htmlFor="password">Password (min 6 chars)</Label>
-        <Input id="password" name="password" type="password" required minLength={6} placeholder="Their login password" />
+        <PasswordInput id="password" name="password" required minLength={6} placeholder="Their login password" />
       </div>
       <div>
         <Label htmlFor="role">Role</Label>
