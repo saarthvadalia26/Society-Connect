@@ -26,14 +26,14 @@ export function SubmitButton({
       type="submit"
       disabled={pending}
       className={cn(
-        "group inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all active:scale-[0.98]",
+        "group relative overflow-hidden inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all active:scale-[0.98]",
         pending ? "opacity-70 cursor-wait" : base,
         className,
       )}
     >
-      {/* Subtle Shimmer Effect Loop */}
+      {/* Subtle Shimmer Effect Loop — soft matte reflection */}
       {!pending && variant !== "danger" && (
-        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       )}
       {pending ? (
         <>
