@@ -31,7 +31,9 @@ export function Sidebar({ user, items, brand }: { user: User; items: NavItem[]; 
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {items.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/admin" && item.href !== "/resident" && item.href !== "/guard" && pathname.startsWith(item.href));
+          const isRoot = item.href === "/admin" || item.href === "/resident" || item.href === "/guard";
+          const isActive = pathname === item.href ||
+            (!isRoot && (pathname === item.href || pathname.startsWith(item.href + "/")));
           return (
             <Link
               key={item.href}
