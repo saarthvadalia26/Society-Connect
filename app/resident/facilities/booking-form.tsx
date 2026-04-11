@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Label, Input } from "@/components/ui";
 
-export function BookingForm({ facilityId, fee }: { facilityId: string; fee: number }) {
+export function BookingForm({ facilityId, fee, currency }: { facilityId: string; fee: number; currency: string }) {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
 
@@ -19,6 +19,15 @@ export function BookingForm({ facilityId, fee }: { facilityId: string; fee: numb
 
   const hours = calculateHours();
   const total = hours * fee;
+
+  const fractionDigits = currency === "INR" ? 0 : 2;
+  const locale = currency === "USD" ? "en-US" : currency === "GBP" ? "en-GB" : currency === "EUR" ? "en-IE" : "en-IN";
+  const formatter = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -56,7 +65,7 @@ export function BookingForm({ facilityId, fee }: { facilityId: string; fee: numb
 
       {start && end && hours > 0 ? (
         <div className="rounded-lg bg-slate-50 p-3 text-sm font-medium text-slate-800 dark:bg-slate-800/50 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
-          Total: ₹{total.toLocaleString("en-IN")} ({hours} hour{hours > 1 ? "s" : ""} @ ₹{fee}/hr)
+          Total: {formatter.format(total)} ({hours} hour{hours > 1 ? "s" : ""} @ {formatter.format(fee)}/hr)
         </div>
       ) : start && end && hours === 0 ? (
         <div className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-600 dark:bg-red-500/10 dark:text-red-400 border border-red-200 dark:border-red-500/20">

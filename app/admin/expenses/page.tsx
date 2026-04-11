@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
-import { db, fmtINR } from "@/lib/db";
+import { db, fmtCurrency } from "@/lib/db";
 import { Card, CardBody, CardHeader, Button, Input, Label, Textarea, EmptyState } from "@/components/ui";
 import { PageHeader } from "@/components/nav";
 import { SubmitButton } from "@/components/submit-button";
@@ -60,7 +60,7 @@ export default async function ExpensesPage() {
         </Card>
 
         <Card className="lg:col-span-2">
-          <CardHeader title={`All expenses · ${fmtINR(total)}`} />
+          <CardHeader title={`All expenses · ${fmtCurrency(total, user.currency)}`} />
           <CardBody>
             {expenses.length === 0 ? (
               <EmptyState title="No expenses logged" hint="Use the form to add your first entry." />
@@ -82,7 +82,7 @@ export default async function ExpensesPage() {
                         <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">{e.spent_on}</td>
                         <td className="py-3 pr-4 font-semibold text-slate-900 dark:text-slate-100">{e.category}</td>
                         <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{e.vendor}</td>
-                        <td className="py-3 pr-4 font-bold text-slate-900 dark:text-white">{fmtINR(e.amount)}</td>
+                        <td className="py-3 pr-4 font-bold text-slate-900 dark:text-white">{fmtCurrency(e.amount, user.currency)}</td>
                         <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">{e.note ?? "—"}</td>
                       </tr>
                     ))}

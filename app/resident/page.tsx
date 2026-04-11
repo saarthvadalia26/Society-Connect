@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
-import { db, fmtINR, fmtPeriod } from "@/lib/db";
+import { db, fmtCurrency, fmtPeriod } from "@/lib/db";
 import { Card, CardBody, CardHeader, Button, Stat, Badge, EmptyState } from "@/components/ui";
 import { PageHeader } from "@/components/nav";
 
@@ -28,13 +28,13 @@ export default async function ResidentHome() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Stat
           label="Total dues"
-          value={fmtINR(totalDue)}
+          value={fmtCurrency(totalDue, user.currency)}
           hint={unpaid.length ? `${unpaid.length} unpaid bill${unpaid.length > 1 ? "s" : ""}` : "All clear"}
         />
         <Stat
           label="Next due"
           value={nextDue ? fmtPeriod(nextDue.period) : "—"}
-          hint={nextDue ? `${fmtINR(nextDue.amount)} by ${nextDue.due_date}` : "Nothing pending"}
+          hint={nextDue ? `${fmtCurrency(nextDue.amount, user.currency)} by ${nextDue.due_date}` : "Nothing pending"}
         />
         <Stat label="Open tickets" value={String(openComplaints)} hint={`${myComplaints.length} total raised`} />
       </div>
@@ -61,7 +61,7 @@ export default async function ResidentHome() {
                       <div className="text-xs text-slate-500 dark:text-slate-400">Due {b.due_date}</div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-900 dark:text-white">{fmtINR(b.amount)}</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white">{fmtCurrency(b.amount, user.currency)}</span>
                       <Badge tone="amber">unpaid</Badge>
                     </div>
                   </li>

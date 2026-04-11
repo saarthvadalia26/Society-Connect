@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
-import { db, fmtINR, fmtPeriod, currentPeriod } from "@/lib/db";
+import { db, fmtCurrency, fmtPeriod, currentPeriod } from "@/lib/db";
 import { Card, CardBody, CardHeader, Button, Badge, EmptyState } from "@/components/ui";
 import { PageHeader } from "@/components/nav";
 import { NudgeLink } from "@/components/nudge";
@@ -132,7 +132,7 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
       <Card className="mt-6">
         <CardHeader
           title={`Bills for ${fmtPeriod(period)}`}
-          subtitle={`${fmtINR(collected)} collected · ${fmtINR(outstanding)} outstanding`}
+          subtitle={`${fmtCurrency(collected, user.currency)} collected · ${fmtCurrency(outstanding, user.currency)} outstanding`}
           action={
             <form className="flex items-center gap-2">
               <label className="text-xs text-slate-500">Period</label>
@@ -180,7 +180,7 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
                           {flat?.block}-{flat?.number}
                         </td>
                         <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{owner?.name ?? "—"}</td>
-                        <td className="py-3 pr-4 font-bold text-slate-900 dark:text-white">{fmtINR(bill.amount)}</td>
+                        <td className="py-3 pr-4 font-bold text-slate-900 dark:text-white">{fmtCurrency(bill.amount, user.currency)}</td>
                         <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">{bill.due_date}</td>
                         <td className="py-3 pr-4">
                           {bill.status === "paid"

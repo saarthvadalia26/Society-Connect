@@ -1,5 +1,5 @@
 import { requireRole } from "@/lib/auth";
-import { db, fmtINR } from "@/lib/db";
+import { db, fmtCurrency } from "@/lib/db";
 import { Card, CardBody, CardHeader, EmptyState, Badge } from "@/components/ui";
 import { PageHeader } from "@/components/nav";
 import { NudgeLink } from "@/components/nudge";
@@ -36,7 +36,7 @@ export default async function DefaultersPage() {
       </div>
 
       <Card className="mb-6">
-        <CardHeader title={`Critical · Red (${red.length})`} subtitle={`${fmtINR(red.reduce((s, r) => s + r.outstanding, 0))} outstanding`} />
+        <CardHeader title={`Critical · Red (${red.length})`} subtitle={`${fmtCurrency(red.reduce((s, r) => s + r.outstanding, 0))} outstanding`} />
         <CardBody>
           {red.length === 0 ? (
             <EmptyState title="No critical defaulters" />
@@ -49,7 +49,7 @@ export default async function DefaultersPage() {
                       Flat {r.flat.block}-{r.flat.number} · {r.owner?.name ?? "—"}
                     </div>
                     <div className="text-xs text-slate-500">
-                      {r.unpaidCount} unpaid months · {fmtINR(r.outstanding)} outstanding
+                      {r.unpaidCount} unpaid months · {fmtCurrency(r.outstanding, user.currency)} outstanding
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export default async function DefaultersPage() {
       </Card>
 
       <Card className="mb-6">
-        <CardHeader title={`Yellow (${yellow.length})`} subtitle={`${fmtINR(yellow.reduce((s, r) => s + r.outstanding, 0))} outstanding`} />
+        <CardHeader title={`Yellow (${yellow.length})`} subtitle={`${fmtCurrency(yellow.reduce((s, r) => s + r.outstanding, 0))} outstanding`} />
         <CardBody>
           {yellow.length === 0 ? (
             <EmptyState title="No flats in yellow" />
@@ -85,7 +85,7 @@ export default async function DefaultersPage() {
                       Flat {r.flat.block}-{r.flat.number} · {r.owner?.name ?? "—"}
                     </div>
                     <div className="text-xs text-slate-500">
-                      {r.unpaidCount} unpaid · {fmtINR(r.outstanding)}
+                      {r.unpaidCount} unpaid · {fmtCurrency(r.outstanding, user.currency)}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export default async function DefaultersPage() {
       </Card>
 
       <div className="mt-6 text-xs text-slate-500">
-        Total outstanding across the society: <span className="font-semibold text-slate-700">{fmtINR(totalOutstanding)}</span>
+        Total outstanding across the society: <span className="font-semibold text-slate-700">{fmtCurrency(totalOutstanding, user.currency)}</span>
       </div>
     </div>
   );

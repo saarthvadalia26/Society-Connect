@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
-import { db, fmtINR, fmtPeriod } from "@/lib/db";
+import { db, fmtCurrency, fmtPeriod } from "@/lib/db";
 import { Card, CardBody, CardHeader, Button, Badge, EmptyState } from "@/components/ui";
 import { PageHeader } from "@/components/nav";
 
@@ -39,7 +39,7 @@ export default async function LedgerPage() {
       />
 
       <Card>
-        <CardHeader title={`Outstanding · ${fmtINR(totalDue)}`} />
+        <CardHeader title={`Outstanding · ${fmtCurrency(totalDue, user.currency)}`} />
         <CardBody>
           {unpaid.length === 0 ? (
             <EmptyState title="You're all paid up" hint="No outstanding dues." />
@@ -52,7 +52,7 @@ export default async function LedgerPage() {
                     <div className="text-xs text-slate-500">Due {b.due_date}</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold text-slate-900">{fmtINR(b.amount)}</span>
+                    <span className="text-sm font-semibold text-slate-900">{fmtCurrency(b.amount, user.currency)}</span>
                     <form action={payAction}>
                       <input type="hidden" name="billId" value={b.id} />
                       <Button type="submit">Pay now</Button>
@@ -86,7 +86,7 @@ export default async function LedgerPage() {
                   {paid.map((b) => (
                     <tr key={b.id} className="border-b border-slate-100 dark:border-slate-700/50 transition-colors hover:bg-slate-800/60">
                       <td className="py-3 pr-4 font-semibold text-slate-900 dark:text-slate-100">{fmtPeriod(b.period)}</td>
-                      <td className="py-3 pr-4 font-bold text-slate-900 dark:text-white">{fmtINR(b.amount)}</td>
+                      <td className="py-3 pr-4 font-bold text-slate-900 dark:text-white">{fmtCurrency(b.amount, user.currency)}</td>
                       <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">
                         {b.paid_at ? new Date(b.paid_at).toLocaleDateString("en-IN") : "—"}
                       </td>

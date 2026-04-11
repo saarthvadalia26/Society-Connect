@@ -1,5 +1,5 @@
 import { requireRole } from "@/lib/auth";
-import { db, fmtINR } from "@/lib/db";
+import { db, fmtCurrency } from "@/lib/db";
 import { Card, CardBody, CardHeader, Stat } from "@/components/ui";
 import { PageHeader } from "@/components/nav";
 
@@ -48,10 +48,10 @@ export default async function ReportsPage({ searchParams }: { searchParams: { ye
       </Card>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Collected" value={fmtINR(summary.collected)} hint={`${summary.bills.filter((b) => b.status === "paid").length} bills paid`} />
-        <Stat label="Outstanding" value={fmtINR(summary.outstanding)} hint={`${summary.bills.filter((b) => b.status === "unpaid").length} bills unpaid`} />
-        <Stat label="Expenses" value={fmtINR(summary.totalExpenses)} hint={`${summary.expenses.length} entries`} />
-        <Stat label="Net" value={fmtINR(summary.net)} hint="Collected − expenses" />
+        <Stat label="Collected" value={fmtCurrency(summary.collected, user.currency)} hint={`${summary.bills.filter((b) => b.status === "paid").length} bills paid`} />
+        <Stat label="Outstanding" value={fmtCurrency(summary.outstanding, user.currency)} hint={`${summary.bills.filter((b) => b.status === "unpaid").length} bills unpaid`} />
+        <Stat label="Expenses" value={fmtCurrency(summary.totalExpenses, user.currency)} hint={`${summary.expenses.length} entries`} />
+        <Stat label="Net" value={fmtCurrency(summary.net, user.currency)} hint="Collected − expenses" />
       </div>
     </div>
   );

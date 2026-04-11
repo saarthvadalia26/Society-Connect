@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
-import { db, fmtINR } from "@/lib/db";
+import { db, fmtCurrency } from "@/lib/db";
 import { supabaseServer } from "@/lib/supabase";
 import { Card, CardBody, CardHeader, Button, Input, Label, Textarea, Badge, EmptyState } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
@@ -137,7 +137,7 @@ export default async function AdminFacilitiesPage({ searchParams }: { searchPara
                       {f.description ? <div className="text-xs text-slate-500 dark:text-slate-400">{f.description}</div> : null}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-600/20 px-2.5 py-0.5 text-[11px] font-semibold text-blue-400">{fmtINR(f.fee)} / hour</span>
+                      <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-600/20 px-2.5 py-0.5 text-[11px] font-semibold text-blue-400">{fmtCurrency(f.fee, user.currency)} / hour</span>
                       <form action={removeFacilityAction}>
                         <input type="hidden" name="id" value={f.id} />
                         <Button variant="ghost" type="submit" className="text-slate-400 hover:text-red-400 dark:text-slate-500 dark:hover:text-red-400">Remove</Button>
@@ -168,7 +168,7 @@ export default async function AdminFacilitiesPage({ searchParams }: { searchPara
                       {b.facility?.name} · {b.date} ({b.start_time} - {b.end_time})
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">
-                      Flat {b.flat?.block}-{b.flat?.number} · fee {fmtINR(totalFee)} ({duration} hr)
+                      Flat {b.flat?.block}-{b.flat?.number} · fee {fmtCurrency(totalFee, user.currency)} ({duration} hr)
                     </div>
                   </div>
                   <div className="flex gap-2">

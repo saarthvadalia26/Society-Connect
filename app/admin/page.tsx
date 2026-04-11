@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
-import { db, fmtINR, fmtPeriod, currentPeriod } from "@/lib/db";
+import { db, fmtCurrency, fmtPeriod, currentPeriod } from "@/lib/db";
 import { Card, CardBody, CardHeader, Stat, Badge, EmptyState, Button } from "@/components/ui";
 import { PageHeader } from "@/components/nav";
 import { CollectionChart } from "@/components/chart";
@@ -45,17 +45,17 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
           label="Collected"
-          value={fmtINR(collected)}
+          value={fmtCurrency(collected, user.currency)}
           hint={`${bills.filter((b) => b.status === "paid").length} of ${bills.length} flats paid`}
         />
         <Stat
           label="Outstanding"
-          value={fmtINR(outstanding)}
+          value={fmtCurrency(outstanding, user.currency)}
           hint={`${bills.filter((b) => b.status === "unpaid").length} unpaid bills`}
         />
         <Stat
           label="Expenses"
-          value={fmtINR(monthExpenses)}
+          value={fmtCurrency(monthExpenses, user.currency)}
           hint={`${expenses.filter((e) => e.spent_on.startsWith(period)).length} entries this month`}
         />
         <Stat
@@ -68,7 +68,7 @@ export default async function AdminDashboard() {
       <Card className="mt-6">
         <CardHeader title="Collection vs Outstanding" subtitle="Last 6 months — bring this to your committee meetings." />
         <CardBody>
-          <CollectionChart data={monthly} />
+          <CollectionChart data={monthly} currency={user.currency} />
         </CardBody>
       </Card>
 

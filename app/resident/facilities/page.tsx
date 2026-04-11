@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
-import { db, fmtINR } from "@/lib/db";
+import { db, fmtCurrency } from "@/lib/db";
 import { Card, CardBody, CardHeader, Badge, EmptyState } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
 import { BookingForm } from "./booking-form";
@@ -83,10 +83,10 @@ export default async function ResidentFacilitiesPage({ searchParams }: { searchP
             <CardHeader title={f.name} subtitle={f.description ?? undefined} />
             <CardBody>
               <div className="mb-5 text-[13px] text-slate-500 dark:text-slate-300">
-                <span className="font-semibold text-slate-900 dark:text-white">{fmtINR(f.fee)} / hour</span>
+                <span className="font-semibold text-slate-900 dark:text-white">{fmtCurrency(f.fee, user.currency)} / hour</span>
               </div>
               <form action={requestBookingAction} className="flex flex-col gap-4">
-                <BookingForm facilityId={f.id} fee={f.fee} />
+                <BookingForm facilityId={f.id} fee={f.fee} currency={user.currency} />
                 <div className="self-end">
                   <SubmitButton loadingText="Requesting...">Request booking</SubmitButton>
                 </div>

@@ -1,4 +1,4 @@
-import { fmtINR } from "@/lib/db";
+import { fmtCurrency } from "@/lib/db";
 
 export interface MonthlyDatum {
   period: string;
@@ -11,7 +11,7 @@ function shortMonth(period: string): string {
   return new Date(y, m - 1, 1).toLocaleString("en-IN", { month: "short" });
 }
 
-export function CollectionChart({ data }: { data: MonthlyDatum[] }) {
+export function CollectionChart({ data, currency }: { data: MonthlyDatum[], currency: string }) {
   const width = 640;
   const height = 220;
   const padX = 40;
@@ -46,10 +46,10 @@ export function CollectionChart({ data }: { data: MonthlyDatum[] }) {
           return (
             <g key={d.period}>
               <rect x={x0} y={height - padY - collH} width={barW} height={collH} fill="url(#greenGrad)" rx={4}>
-                <title>{`Collected ${fmtINR(d.collected)}`}</title>
+                <title>{`Collected ${fmtCurrency(d.collected, currency)}`}</title>
               </rect>
               <rect x={x0 + barW + 4} y={height - padY - outH} width={barW} height={outH} fill="url(#amberGrad)" rx={4}>
-                <title>{`Outstanding ${fmtINR(d.outstanding)}`}</title>
+                <title>{`Outstanding ${fmtCurrency(d.outstanding, currency)}`}</title>
               </rect>
               <text
                 x={x0 + barW + 2}
