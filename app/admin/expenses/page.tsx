@@ -17,7 +17,7 @@ async function addExpenseAction(formData: FormData) {
   if (!category || !vendor || !amount) return;
   await db.addExpense({ society_id: user.society_id, category, vendor, amount, note, spent_on });
   revalidatePath("/admin/expenses");
-  redirect("/admin/expenses");
+  redirect("/admin/expenses?toast=Expense%20added%20successfully!");
 }
 
 export default async function ExpensesPage() {

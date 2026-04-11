@@ -1,6 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Toaster } from "sonner";
+import { ToastListener } from "@/components/toast-listener";
 
 export const metadata: Metadata = {
   title: "Society Connect — Your Society, Simplified",
@@ -22,6 +24,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           }}
         />
         {children}
+        <Toaster theme="dark" />
+        <ToastListener />
       </body>
     </html>
   );

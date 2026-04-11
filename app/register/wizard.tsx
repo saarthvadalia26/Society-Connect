@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useFormState } from "react-dom";
 import { registerAction } from "./actions";
+import { toast } from "sonner";
 import { Card, CardBody, Label, Input } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
 import { PasswordInput } from "@/components/password-input";
@@ -20,7 +21,9 @@ export function RegistrationWizard() {
     e.preventDefault();
     // Basic frontend validation for Step 1 before sliding
     if (!name || !email || !password || password.length < 6) {
-      alert("Please fill all required fields correctly (password min 6 chars) before proceeding.");
+      toast.error("Registration Incomplete", { 
+        description: "Please ensure all fields (including currency) are filled correctly." 
+      });
       return;
     }
     setStep(2);
