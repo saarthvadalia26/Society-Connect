@@ -81,6 +81,9 @@ export default async function AdminDashboard() {
             action={<Link href="/admin/notices" className="text-xs font-medium text-brand-600 hover:underline">View all →</Link>}
           />
           <CardBody>
+            <h1 style={{ backgroundColor: 'red', color: 'white', fontSize: '30px', position: 'relative', zIndex: 9999, padding: '10px', marginBottom: '10px', fontWeight: 'bold' }}>
+              IF YOU CAN SEE THIS, TEXT IS WORKING
+            </h1>
             {recentNotices.length === 0 ? (
               <EmptyState title="No notices yet" hint="Post one from the Notice board." />
             ) : (
