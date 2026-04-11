@@ -51,14 +51,13 @@ export default async function ResidentComplaintsPage() {
                   name="category"
                   required
                   defaultValue=""
-                  style={{ color: '#0f172a' }}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-brand-400"
                 >
-                  <option value="" disabled style={{ color: '#94a3b8' }}>
+                  <option value="" disabled className="text-slate-400 dark:text-slate-500">
                     Select a category
                   </option>
                   {CATEGORIES.map((c) => (
-                    <option key={c} value={c} style={{ color: '#0f172a' }}>
+                    <option key={c} value={c}>
                       {c}
                     </option>
                   ))}
