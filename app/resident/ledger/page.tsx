@@ -74,32 +74,32 @@ export default async function LedgerPage() {
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
-                    <th className="py-2 pr-4">Period</th>
-                    <th className="py-2 pr-4">Amount</th>
-                    <th className="py-2 pr-4">Paid on</th>
-                    <th className="py-2 pr-4">Receipt</th>
-                    <th className="py-2 pr-4">Status</th>
+                  <tr className="border-b border-slate-700/40 dark:border-slate-700 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <th className="py-3 pr-4">Period</th>
+                    <th className="py-3 pr-4">Amount</th>
+                    <th className="py-3 pr-4">Paid on</th>
+                    <th className="py-3 pr-4">Receipt</th>
+                    <th className="py-3 pr-4">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paid.map((b) => (
-                    <tr key={b.id} className="border-b border-slate-100">
-                      <td className="py-2 pr-4 font-medium text-slate-900">{fmtPeriod(b.period)}</td>
-                      <td className="py-2 pr-4 text-slate-900">{fmtINR(b.amount)}</td>
-                      <td className="py-2 pr-4 text-slate-500">
+                    <tr key={b.id} className="border-b border-slate-100 dark:border-slate-700/50 transition-colors hover:bg-slate-800/60">
+                      <td className="py-3 pr-4 font-semibold text-slate-900 dark:text-slate-100">{fmtPeriod(b.period)}</td>
+                      <td className="py-3 pr-4 font-bold text-slate-900 dark:text-white">{fmtINR(b.amount)}</td>
+                      <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">
                         {b.paid_at ? new Date(b.paid_at).toLocaleDateString("en-IN") : "—"}
                       </td>
-                      <td className="py-2 pr-4">
+                      <td className="py-3 pr-4">
                         <a
                           href={`/api/receipts/${b.id}`}
-                          className="text-xs font-medium text-brand-600 hover:underline"
+                          className="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
                         >
                           {b.serial_no ?? "Download"} ↓
                         </a>
                       </td>
-                      <td className="py-2 pr-4">
-                        <Badge tone="green">paid</Badge>
+                      <td className="py-3 pr-4">
+                        <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">paid</span>
                       </td>
                     </tr>
                   ))}

@@ -59,6 +59,7 @@ export function Input({ className, ...rest }: InputHTMLAttributes<HTMLInputEleme
         "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400",
         className,
       )}
+      style={{ color: '#0f172a' }}
       {...rest}
     />
   );
@@ -71,6 +72,7 @@ export function Textarea({ className, ...rest }: TextareaHTMLAttributes<HTMLText
         "w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400",
         className,
       )}
+      style={{ color: '#0f172a' }}
       {...rest}
     />
   );

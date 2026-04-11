@@ -57,11 +57,11 @@ export default async function ResidentHome() {
                 {unpaid.slice(0, 4).map((b) => (
                   <li key={b.id} className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
                     <div>
-                      <div className="text-sm font-medium text-slate-900">{fmtPeriod(b.period)}</div>
-                      <div className="text-xs text-slate-500">Due {b.due_date}</div>
+                      <div className="text-sm font-bold text-slate-900 dark:text-white">{fmtPeriod(b.period)}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">Due {b.due_date}</div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-900">{fmtINR(b.amount)}</span>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white">{fmtINR(b.amount)}</span>
                       <Badge tone="amber">unpaid</Badge>
                     </div>
                   </li>
@@ -80,8 +80,8 @@ export default async function ResidentHome() {
               <ul className="divide-y divide-slate-100">
                 {notices.map((n) => (
                   <li key={n.id} className="py-2 first:pt-0 last:pb-0">
-                    <div className="text-sm font-medium text-slate-900">{n.title}</div>
-                    <div className="line-clamp-2 text-xs text-slate-500">{n.body}</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white">{n.title}</div>
+                    <div className="line-clamp-2 mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-200">{n.body}</div>
                   </li>
                 ))}
               </ul>
