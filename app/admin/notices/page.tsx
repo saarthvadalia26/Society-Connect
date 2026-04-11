@@ -49,12 +49,12 @@ export default async function AdminNoticesPage() {
             {notices.length === 0 ? (
               <EmptyState title="No notices yet" hint="Post your first one." />
             ) : (
-              <ul className="divide-y divide-slate-100">
+              <ul className="space-y-3">
                 {notices.map((n) => (
-                  <li key={n.id} className="py-4 first:pt-0 last:pb-0">
-                    <div className="text-sm font-semibold text-slate-900">{n.title}</div>
-                    <div className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{n.body}</div>
-                    <div className="mt-2 text-[11px] text-slate-400">{new Date(n.created_at).toLocaleString("en-IN")}</div>
+                  <li key={n.id} className="rounded-lg border border-slate-700/50 bg-slate-800/40 p-4">
+                    <div className="text-sm font-bold text-slate-900 dark:text-white">{n.title}</div>
+                    <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-600 dark:text-slate-200">{n.body}</div>
+                    <div className="mt-3 text-[11px] text-slate-400">{new Date(n.created_at).toLocaleString("en-IN")}</div>
                   </li>
                 ))}
               </ul>
