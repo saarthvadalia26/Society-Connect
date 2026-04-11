@@ -13,7 +13,22 @@ async function addFacilityAction(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const fee = Number(formData.get("fee") ?? 0);
   const description = String(formData.get("description") ?? "").trim() || null;
-  if (!name || !fee) return;
+  if (!name || !fee) {
+    redirect("/admin/facilities?error=" + encodeURIComponent("Name and fee are required."));
+  }
+
+  // Case-insensitive duplicate check within this society
+  const { data: existing } = await supabaseServer()
+    .from("facilities")
+    .select("id")
+    .eq("society_id", user.society_id)
+    .ilike("name", name)
+    .maybeSingle();
+
+  if (existing) {
+    redirect("/admin/facilities?error=" + encodeURIComponent(`A facility named "${name}" already exists in your society.`));
+  }
+
   await supabaseServer().from("facilities").insert({
     society_id: user.society_id,
     name,
@@ -21,7 +36,7 @@ async function addFacilityAction(formData: FormData) {
     description,
   });
   revalidatePath("/admin/facilities");
-  redirect("/admin/facilities");
+  redirect("/admin/facilities?success=" + encodeURIComponent(`"${name}" added successfully.`));
 }
 
 async function removeFacilityAction(formData: FormData) {
@@ -45,8 +60,10 @@ async function decideAction(formData: FormData) {
   redirect("/admin/facilities");
 }
 
-export default async function AdminFacilitiesPage() {
+export default async function AdminFacilitiesPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
   const user = await requireRole("admin");
+  const errorMsg = searchParams.error;
+  const successMsg = searchParams.success;
   const [facilities, bookings] = await Promise.all([
     db.listFacilities(user.society_id),
     db.listBookings(user.society_id),
@@ -60,6 +77,20 @@ export default async function AdminFacilitiesPage() {
         title="Facility bookings"
         description="Approve clubhouse and pool requests. Approved fees roll into the next maintenance bill automatically."
       />
+
+      {/* Success / Error banners */}
+      {successMsg && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-400">
+          <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+          {successMsg}
+        </div>
+      )}
+      {errorMsg && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400">
+          <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          {errorMsg}
+        </div>
+      )}
 
       <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
@@ -89,18 +120,18 @@ export default async function AdminFacilitiesPage() {
             {facilities.length === 0 ? (
               <EmptyState title="No facilities yet" hint="Add one using the form." />
             ) : (
-              <ul className="divide-y divide-slate-100">
+              <ul className="space-y-2">
                 {facilities.map((f) => (
-                  <li key={f.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                  <li key={f.id} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/50 bg-slate-800/40 px-4 py-3">
                     <div>
-                      <div className="text-sm font-semibold text-slate-900">{f.name}</div>
-                      {f.description ? <div className="text-xs text-slate-500">{f.description}</div> : null}
+                      <div className="text-sm font-semibold text-slate-900 dark:text-white">{f.name}</div>
+                      {f.description ? <div className="text-xs text-slate-500 dark:text-slate-400">{f.description}</div> : null}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge tone="blue">{fmtINR(f.fee)} / booking</Badge>
+                      <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-600/20 px-2.5 py-0.5 text-[11px] font-semibold text-blue-400">{fmtINR(f.fee)} / booking</span>
                       <form action={removeFacilityAction}>
                         <input type="hidden" name="id" value={f.id} />
-                        <Button variant="ghost" type="submit">Remove</Button>
+                        <Button variant="ghost" type="submit" className="text-slate-400 hover:text-red-400 dark:text-slate-500 dark:hover:text-red-400">Remove</Button>
                       </form>
                     </div>
                   </li>
@@ -117,14 +148,14 @@ export default async function AdminFacilitiesPage() {
           {pending.length === 0 ? (
             <EmptyState title="No pending requests" />
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="space-y-2">
               {pending.map((b) => (
-                <li key={b.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                <li key={b.id} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/50 bg-slate-800/40 px-4 py-3">
                   <div>
-                    <div className="text-sm font-semibold text-slate-900">
+                    <div className="text-sm font-semibold text-slate-900 dark:text-white">
                       {b.facility?.name} · {b.date}
                     </div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
                       Flat {b.flat?.block}-{b.flat?.number} · fee {fmtINR(b.facility?.fee ?? 0)}
                     </div>
                   </div>
@@ -137,7 +168,7 @@ export default async function AdminFacilitiesPage() {
                     <form action={decideAction}>
                       <input type="hidden" name="id" value={b.id} />
                       <input type="hidden" name="decision" value="rejected" />
-                      <Button variant="secondary" type="submit">
+                      <Button variant="secondary" type="submit" className="dark:border-slate-600 dark:text-slate-200">
                         Reject
                       </Button>
                     </form>
@@ -155,19 +186,22 @@ export default async function AdminFacilitiesPage() {
           {decided.length === 0 ? (
             <EmptyState title="Nothing decided yet" />
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="space-y-2">
               {decided.map((b) => (
-                <li key={b.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                <li key={b.id} className="flex items-center justify-between rounded-lg border border-slate-700/30 bg-slate-800/20 px-4 py-3">
                   <div>
-                    <div className="text-sm font-semibold text-slate-900">
+                    <div className="text-sm font-semibold text-slate-900 dark:text-slate-200">
                       {b.facility?.name} · {b.date}
                     </div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
                       Flat {b.flat?.block}-{b.flat?.number}
                       {b.fee_billed ? " · fee billed" : ""}
                     </div>
                   </div>
-                  {b.status === "approved" ? <Badge tone="green">approved</Badge> : <Badge tone="red">rejected</Badge>}
+                  {b.status === "approved"
+                    ? <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">approved</span>
+                    : <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-red-400">rejected</span>
+                  }
                 </li>
               ))}
             </ul>
