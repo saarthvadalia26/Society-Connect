@@ -51,9 +51,9 @@ export default async function AdminNoticesPage() {
             ) : (
               <ul className="space-y-3">
                 {notices.map((n) => (
-                  <li key={n.id} className="rounded-lg border border-slate-700/50 bg-slate-800/40 p-4">
-                    <div className="text-sm font-bold text-white" style={{ color: '#f8fafc' }}>{n.title}</div>
-                    <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-200">{n.body}</div>
+                  <li key={n.id} className="rounded-lg border border-slate-700/50 bg-slate-900/40 p-4 mb-3">
+                    <div className="text-sm font-bold" style={{ color: '#ffffff', opacity: 1, visibility: 'visible' }}>{n.title}</div>
+                    <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed" style={{ color: '#e2e8f0', opacity: 1, visibility: 'visible' }}>{n.body}</div>
                     <div className="mt-3 text-[11px] text-slate-400">{new Date(n.created_at).toLocaleString("en-IN")}</div>
                   </li>
                 ))}
