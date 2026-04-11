@@ -76,24 +76,26 @@ export default async function AdminContactsPage() {
             {contacts.length === 0 ? (
               <EmptyState title="No contacts yet" hint="Add your first vetted vendor." />
             ) : (
-              <ul className="divide-y divide-slate-100">
+              <ul className="space-y-3">
                 {contacts.map((c) => (
-                  <li key={c.id} className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-900">{c.name}</span>
-                        <Badge tone="blue">{c.role}</Badge>
-                        <span className="text-xs text-amber-600">{"★".repeat(c.rating)}</span>
+                  <li key={c.id} className="rounded-lg border border-slate-700/50 bg-slate-800/40 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-base font-bold text-slate-900 dark:text-white">{c.name}</span>
+                          <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-600/20 px-2.5 py-0.5 text-[11px] font-semibold text-blue-400">{c.role}</span>
+                          <span className="text-sm text-yellow-500" title={`${c.rating}/5`}>{"★".repeat(c.rating)}{"☆".repeat(5 - c.rating)}</span>
+                        </div>
+                        <div className="mt-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">{c.phone}</div>
+                        {c.notes ? <div className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{c.notes}</div> : null}
                       </div>
-                      <div className="mt-0.5 text-xs text-slate-500">{c.phone}</div>
-                      {c.notes ? <div className="mt-1 text-xs text-slate-600">{c.notes}</div> : null}
+                      <form action={deleteContactAction} className="shrink-0">
+                        <input type="hidden" name="id" value={c.id} />
+                        <Button variant="ghost" type="submit" className="text-slate-400 hover:text-red-400 dark:text-slate-500 dark:hover:text-red-400">
+                          Remove
+                        </Button>
+                      </form>
                     </div>
-                    <form action={deleteContactAction}>
-                      <input type="hidden" name="id" value={c.id} />
-                      <Button variant="ghost" type="submit">
-                        Remove
-                      </Button>
-                    </form>
                   </li>
                 ))}
               </ul>

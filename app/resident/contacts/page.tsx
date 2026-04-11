@@ -39,16 +39,16 @@ export default async function ResidentContactsPage() {
             <Card key={role}>
               <CardHeader title={role} />
               <CardBody>
-                <ul className="divide-y divide-slate-100">
+                <ul className="divide-y divide-slate-100 dark:divide-slate-700/50">
                   {list.map((c) => (
-                    <li key={c.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                    <li key={c.id} className="flex items-center justify-between gap-3 py-4 first:pt-0 last:pb-0">
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-900">{c.name}</span>
-                          <span className="text-xs text-amber-600">{"★".repeat(c.rating)}</span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">{c.name}</span>
+                          <span className="text-sm text-yellow-500" title={`${c.rating}/5`}>{"★".repeat(c.rating)}{"☆".repeat(5 - c.rating)}</span>
                         </div>
-                        <div className="mt-0.5 text-xs text-slate-500">{c.phone}</div>
-                        {c.notes ? <div className="mt-1 text-xs text-slate-600">{c.notes}</div> : null}
+                        <div className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-200">{c.phone}</div>
+                        {c.notes ? <div className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{c.notes}</div> : null}
                       </div>
                       <div className="flex items-center gap-2">
                         <a
