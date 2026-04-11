@@ -59,20 +59,20 @@ export default async function AdminFlatsPage() {
         <CardBody>
           <form action={uploadCsvAction} className="flex flex-wrap items-end gap-3">
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600">CSV file</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">CSV file</label>
               <input
                 type="file"
                 name="csv"
                 accept=".csv,text/csv"
                 required
-                className="block text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-brand-600 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white hover:file:bg-brand-700"
+                className="block text-sm text-slate-700 dark:text-slate-400 file:mr-3 file:rounded-md file:border-0 file:bg-brand-600 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white hover:file:bg-brand-700"
               />
             </div>
             <SubmitButton loadingText="Uploading...">Upload</SubmitButton>
           </form>
-          <details className="mt-4 text-xs text-slate-500">
-            <summary className="cursor-pointer">Sample CSV</summary>
-            <pre className="mt-2 rounded-md bg-slate-50 p-3 text-[11px] leading-relaxed text-slate-700">{`block,number,ownerName,ownerEmail
+          <details className="mt-4 text-xs text-slate-400">
+            <summary className="cursor-pointer font-medium text-blue-400 hover:text-blue-300 transition-colors">Sample CSV</summary>
+            <pre className="mt-2 rounded-md bg-slate-100 dark:bg-slate-800 p-3 text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">{`block,number,ownerName,ownerEmail
 A,103,Meera Joshi,meera@example.com
 A,104,Arjun Rao,arjun@example.com
 D,401,,`}</pre>
@@ -89,25 +89,28 @@ D,401,,`}</pre>
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
-                    <th className="py-2 pr-4">Block</th>
-                    <th className="py-2 pr-4">Flat</th>
-                    <th className="py-2 pr-4">Owner</th>
-                    <th className="py-2 pr-4">Email</th>
-                    <th className="py-2 pr-4">Status</th>
+                  <tr className="border-b border-slate-700/40 dark:border-slate-700 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <th className="py-3 pr-4">Block</th>
+                    <th className="py-3 pr-4">Flat</th>
+                    <th className="py-3 pr-4">Owner</th>
+                    <th className="py-3 pr-4">Email</th>
+                    <th className="py-3 pr-4">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {flats.map((f) => {
                     const owner = f.owner_user_id ? ownerById.get(f.owner_user_id) : undefined;
                     return (
-                      <tr key={f.id} className="border-b border-slate-100">
-                        <td className="py-2 pr-4 font-medium text-slate-900">{f.block}</td>
-                        <td className="py-2 pr-4 text-slate-900">{f.number}</td>
-                        <td className="py-2 pr-4 text-slate-700">{owner?.name ?? "—"}</td>
-                        <td className="py-2 pr-4 text-slate-500">{owner?.email ?? "—"}</td>
-                        <td className="py-2 pr-4">
-                          {owner ? <Badge tone="green">Assigned</Badge> : <Badge tone="amber">Unassigned</Badge>}
+                      <tr key={f.id} className="border-b border-slate-100 dark:border-slate-700/50 transition-colors hover:bg-white/5">
+                        <td className="py-4 pr-4 font-semibold text-slate-900 dark:text-slate-100">{f.block}</td>
+                        <td className="py-4 pr-4 font-medium text-slate-900 dark:text-slate-200">{f.number}</td>
+                        <td className="py-4 pr-4 text-slate-700 dark:text-slate-300">{owner?.name ?? "—"}</td>
+                        <td className="py-4 pr-4 text-slate-500 dark:text-slate-400">{owner?.email ?? "—"}</td>
+                        <td className="py-4 pr-4">
+                          {owner
+                            ? <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">Assigned</span>
+                            : <span className="inline-flex items-center rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400">Unassigned</span>
+                          }
                         </td>
                       </tr>
                     );
