@@ -13,19 +13,22 @@ export default async function ResidentNoticesPage() {
       <Card>
         <CardHeader title={`${notices.length} notices`} />
         <CardBody>
-          {notices.length === 0 ? (
-            <EmptyState title="No notices yet" />
-          ) : (
-            <ul className="divide-y divide-slate-100">
-              {notices.map((n) => (
-                <li key={n.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="text-sm font-semibold text-slate-900">{n.title}</div>
-                  <div className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{n.body}</div>
-                  <div className="mt-2 text-[11px] text-slate-400">{new Date(n.created_at).toLocaleString("en-IN")}</div>
-                </li>
-              ))}
-            </ul>
-          )}
+          <div className="text-white">
+            {notices.length === 0 ? (
+              <EmptyState title="No notices yet" />
+            ) : (
+              <ul className="divide-y divide-slate-800">
+                {notices.map((n) => (
+                  <li key={n.id} className="p-4 border-b border-slate-800 last:border-0 hover:bg-slate-800/50 transition-colors text-white">
+                    <span className="!text-white !block !opacity-100 mb-1" style={{ color: 'white' }}>FORCE WHITE TEXT HERE</span>
+                    <div className="text-sm font-bold text-white opacity-100" style={{ color: '#ffffff' }}>{n.title}</div>
+                    <div className="mt-1 whitespace-pre-wrap text-sm text-slate-200 opacity-100" style={{ color: '#e2e8f0' }}>{n.body}</div>
+                    <div className="mt-2 text-[11px] text-slate-400 opacity-100" style={{ color: '#94a3b8' }}>{new Date(n.created_at).toLocaleString("en-IN")}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </CardBody>
       </Card>
     </div>
