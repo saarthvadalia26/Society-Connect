@@ -21,9 +21,22 @@ async function generateBillsAction(formData: FormData) {
       redirect("/admin/bills?error=" + encodeURIComponent("Invalid amount."));
     }
 
-    const created = await db.generateBillsForPeriod(user.society_id, period, amount);
+    const result = await db.generateBillsForPeriod(user.society_id, period, amount);
     revalidatePath("/admin/bills");
-    redirect("/admin/bills?success=" + encodeURIComponent(`Generated ${created} bill(s) for ${period}.`));
+
+    // Build a clear, distinct success message for each scenario
+    let successMsg: string;
+    if (result.noFlats) {
+      successMsg = "No active flats found to bill. Add flats first via Society Setup.";
+    } else if (result.created === 0 && result.skipped > 0) {
+      successMsg = `Bills for ${fmtPeriod(period)} have already been generated for all ${result.skipped} flat(s). Nothing to do.`;
+    } else if (result.created > 0 && result.skipped > 0) {
+      successMsg = `Generated ${result.created} new bill(s) for ${fmtPeriod(period)}. ${result.skipped} flat(s) were already billed and skipped.`;
+    } else {
+      successMsg = `Successfully generated ${result.created} bill(s) for ${fmtPeriod(period)}.`;
+    }
+
+    redirect("/admin/bills?success=" + encodeURIComponent(successMsg));
   } catch (err: any) {
     // Next.js redirect() throws internally — let it propagate normally
     if (err?.digest?.startsWith("NEXT_REDIRECT")) throw err;

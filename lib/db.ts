@@ -170,7 +170,11 @@ export const db = {
     const { data } = await client().from("bills").select("*").eq("id", id).maybeSingle();
     return (data ?? undefined) as Bill | undefined;
   },
-  async generateBillsForPeriod(societyId: string, period: string, baseAmount = 3000): Promise<number> {
+  async generateBillsForPeriod(
+    societyId: string,
+    period: string,
+    baseAmount = 3000,
+  ): Promise<{ created: number; skipped: number; noFlats: boolean }> {
     const sb = client();
     console.log(`[generateBills] Starting for society=${societyId} period=${period} amount=${baseAmount}`);
 
@@ -178,7 +182,7 @@ export const db = {
     const flats = await this.listFlats(societyId);
     if (flats.length === 0) {
       console.log("[generateBills] No flats found, aborting.");
-      return 0;
+      return { created: 0, skipped: 0, noFlats: true };
     }
     const flatIds = flats.map((f) => f.id);
     console.log(`[generateBills] Processing ${flats.length} flat(s)`);
@@ -193,7 +197,9 @@ export const db = {
     const flatsToProcess = flats.filter((f) => !alreadyBilledFlatIds.has(f.id));
     console.log(`[generateBills] ${alreadyBilledFlatIds.size} already billed, ${flatsToProcess.length} to create`);
 
-    if (flatsToProcess.length === 0) return 0;
+    if (flatsToProcess.length === 0) {
+      return { created: 0, skipped: alreadyBilledFlatIds.size, noFlats: false };
+    }
 
     // 3. Bulk-fetch all approved unbilled bookings for these flats (single query)
     const { data: allPendingBookings } = await sb
@@ -274,7 +280,7 @@ export const db = {
       }
     }
 
-    return billRows.length;
+    return { created: billRows.length, skipped: alreadyBilledFlatIds.size, noFlats: false };
   },
   async markBillPaid(billId: string): Promise<boolean> {
     const sb = client();
