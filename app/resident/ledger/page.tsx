@@ -46,13 +46,13 @@ export default async function LedgerPage() {
           ) : (
             <ul className="divide-y divide-slate-100 dark:divide-slate-700/50">
               {unpaid.map((b) => (
-                <li key={b.id} className="flex items-center justify-between !rounded-lg !bg-slate-800/20 px-4 py-3 mb-2 last:mb-0">
+                <li key={b.id} className="flex items-center justify-between rounded-lg bg-slate-800/10 px-4 py-3 mb-2 last:mb-0 border border-slate-700/50">
                   <div>
-                    <div className="!text-lg !font-bold" style={{ color: '#FFFFFF', opacity: 1, visibility: 'visible' }}>{fmtPeriod(b.period)}</div>
-                    <div className="text-xs !text-[#CBD5E1]" style={{ color: '#CBD5E1', opacity: 1, visibility: 'visible' }}>Due {b.due_date}</div>
+                    <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>{fmtPeriod(b.period)}</div>
+                    <div className="text-xs !text-[#94a3b8]" style={{ color: '#94a3b8' }}>Due {b.due_date}</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm !font-black !text-[#FFFFFF]" style={{ color: '#FFFFFF', opacity: 1, visibility: 'visible' }}>{fmtCurrency(b.amount, user.currency)}</span>
+                    <span className="text-sm !font-black !text-[#ffffff]" style={{ color: '#ffffff' }}>{fmtCurrency(b.amount, user.currency)}</span>
                     <form action={payAction}>
                       <input type="hidden" name="billId" value={b.id} />
                       <Button type="submit">Pay now</Button>

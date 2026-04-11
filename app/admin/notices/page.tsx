@@ -51,10 +51,10 @@ export default async function AdminNoticesPage() {
             ) : (
               <ul className="space-y-3">
                 {notices.map((n) => (
-                  <li key={n.id} className="!rounded-lg !border !border-slate-700/50 !bg-slate-900/40 p-4 mb-3">
-                    <div className="!text-lg !font-bold !text-[#FFFFFF]" style={{ color: '#FFFFFF', opacity: 1, visibility: 'visible' }}>{n.title}</div>
-                    <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed !text-[#CBD5E1]" style={{ color: '#CBD5E1', opacity: 1, visibility: 'visible' }}>{n.body}</div>
-                    <div className="mt-3 text-[11px] !text-[#94A3B8]">{new Date(n.created_at).toLocaleString("en-IN")}</div>
+                  <li key={n.id} className="rounded-lg border border-slate-700/50 bg-slate-900/40 p-4 mb-3">
+                    <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>{n.title}</div>
+                    <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed !text-[#e2e8f0]" style={{ color: '#e2e8f0' }}>{n.body}</div>
+                    <div className="mt-3 text-[11px] !text-[#94a3b8]">{new Date(n.created_at).toLocaleString("en-IN")}</div>
                   </li>
                 ))}
               </ul>
