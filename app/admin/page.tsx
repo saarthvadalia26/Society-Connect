@@ -90,6 +90,7 @@ export default async function AdminDashboard() {
               <ul className="divide-y divide-slate-800">
                 {recentNotices.map((n) => (
                   <li key={n.id} className="rounded-lg bg-slate-800/10 px-4 py-3 mb-2 last:mb-0 border border-slate-700/50">
+                    <span className="!text-white !block !opacity-100" style={{ color: 'white' }}>FORCE WHITE TEXT HERE</span>
                     <div className="!bg-yellow-400 !p-1 !rounded !text-black mb-1">DEBUG: NOTICE TITLE FOLLOWS</div>
                     <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>TEST TITLE: {n.title}</div>
                     <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed !text-[#e2e8f0]" style={{ color: '#e2e8f0' }}>TEST BODY: {n.body}</div>
