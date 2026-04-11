@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { supabaseServer } from "@/lib/supabase";
+import { supabaseServer, supabaseAdmin } from "@/lib/supabase";
 
 export async function registerAction(prevState: any, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
@@ -32,20 +32,22 @@ export async function registerAction(prevState: any, formData: FormData) {
   }
 
   // Create Auth user
-  const { error: signUpError } = await supabase.auth.signUp({ 
+  const { data: authData, error: signUpError } = await supabase.auth.signUp({ 
     email, 
     password, 
     options: { data: { name } } 
   });
   
   if (signUpError) {
-    return { error: signUpError.message };
+    return { error: `Auth Error: ${signUpError.message}` };
   }
+  
+  const userId = authData?.user?.id;
 
   // Sign them in
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
   if (signInError) {
-    return { error: signInError.message };
+    return { error: `Sign In Error: ${signInError.message}` };
   }
 
   // In case profile somehow exists (edge case)
@@ -67,11 +69,12 @@ export async function registerAction(prevState: any, formData: FormData) {
     .single();
     
   if (socError || !societyRow) {
+    if (userId) await supabaseAdmin()?.auth.admin.deleteUser(userId);
     // If unique constraint triggers here instead of our earlier check
     if (socError?.code === '23505') {
-        return { error: "Society Name already exists." };
+        return { error: "Database Error: Society Name already exists." };
     }
-    return { error: "Failed to create society: " + (socError?.message ?? "") };
+    return { error: `Database Error (societies): ${socError?.message ?? "Unknown error"}` };
   }
 
   // Insert Profile
@@ -83,7 +86,8 @@ export async function registerAction(prevState: any, formData: FormData) {
   });
   
   if (userError) {
-    return { error: "Failed to create profile: " + userError.message };
+    if (userId) await supabaseAdmin()?.auth.admin.deleteUser(userId);
+    return { error: `Database Error (app_users): ${userError.message}` };
   }
 
   redirect("/admin/onboarding");
