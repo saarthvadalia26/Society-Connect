@@ -88,16 +88,16 @@ export default async function GuardGatePage({ searchParams }: PageProps) {
           {recent.length === 0 ? (
             <EmptyState title="No entries yet today" />
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="space-y-3">
               {recent.map((v) => (
-                <li key={v.id} className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
+                <li key={v.id} className="flex items-center justify-between border border-slate-800 rounded-xl bg-slate-900/50 p-4">
                   <div>
-                    <div className="text-sm font-semibold text-slate-900">{v.name}</div>
-                    <div className="text-xs text-slate-500">
+                    <div className="!text-sm !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>{v.name}</div>
+                    <div className="mt-1 text-xs !text-[#94a3b8]" style={{ color: '#94a3b8' }}>
                       Flat {v.flat?.block}-{v.flat?.number} · {v.purpose}
                     </div>
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs !text-slate-400">
                     {v.entered_at ? new Date(v.entered_at).toLocaleTimeString("en-IN") : ""}
                   </div>
                 </li>
