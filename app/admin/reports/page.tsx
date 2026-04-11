@@ -20,25 +20,26 @@ export default async function ReportsPage({ searchParams }: { searchParams: { ye
         <CardBody>
           <form className="flex flex-wrap items-end gap-3">
             <div>
-              <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600">Year</label>
+              <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Year</label>
               <input
                 name="year"
                 type="number"
                 defaultValue={year}
                 min={2000}
                 max={2100}
-                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                style={{ color: '#0f172a' }}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-md bg-white px-3 py-1.5 text-sm font-medium text-slate-900 ring-1 ring-slate-300 hover:bg-slate-50"
+              className="inline-flex items-center justify-center rounded-lg border border-slate-700 bg-transparent px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
             >
               Update
             </button>
             <a
               href={`/api/reports/yearly?year=${year}`}
-              className="inline-flex items-center justify-center rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md"
             >
               Download {year} PDF ↓
             </a>
