@@ -23,8 +23,6 @@ export default async function AdminDashboard() {
     .reduce((s, e) => s + e.amount, 0);
   const openComplaints = allComplaints.filter((c) => c.status === "open");
   const recentNotices = allNotices.slice(0, 3);
-  console.log("DEBUG NOTICES:", recentNotices);
-  console.log("DEBUG COMPLAINTS:", openComplaints);
 
   const society = await db.getSociety(user.society_id);
 
@@ -81,19 +79,14 @@ export default async function AdminDashboard() {
             action={<Link href="/admin/notices" className="text-xs font-medium text-brand-600 hover:underline">View all →</Link>}
           />
           <CardBody>
-            <h1 style={{ backgroundColor: 'red', color: 'white', fontSize: '30px', position: 'relative', zIndex: 9999, padding: '10px', marginBottom: '10px', fontWeight: 'bold' }}>
-              IF YOU CAN SEE THIS, TEXT IS WORKING
-            </h1>
             {recentNotices.length === 0 ? (
               <EmptyState title="No notices yet" hint="Post one from the Notice board." />
             ) : (
               <ul className="divide-y divide-slate-800">
                 {recentNotices.map((n) => (
                   <li key={n.id} className="rounded-lg bg-slate-800/10 px-4 py-3 mb-2 last:mb-0 border border-slate-700/50">
-                    <span className="!text-white !block !opacity-100" style={{ color: 'white' }}>FORCE WHITE TEXT HERE</span>
-                    <div className="!bg-yellow-400 !p-1 !rounded !text-black mb-1">DEBUG: NOTICE TITLE FOLLOWS</div>
-                    <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>TEST TITLE: {n.title}</div>
-                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed !text-[#e2e8f0]" style={{ color: '#e2e8f0' }}>TEST BODY: {n.body}</div>
+                    <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>{n.title}</div>
+                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed !text-[#e2e8f0]" style={{ color: '#e2e8f0' }}>{n.body}</div>
                     <div className="mt-2 text-[11px] !text-[#94a3b8]" style={{ color: '#94a3b8' }}>{new Date(n.created_at).toLocaleDateString("en-IN")}</div>
                   </li>
                 ))}
@@ -115,13 +108,12 @@ export default async function AdminDashboard() {
                 {openComplaints.slice(0, 5).map((c) => (
                   <li key={c.id} className="flex items-start justify-between gap-3 rounded-lg bg-slate-800/10 px-4 py-3 mb-2 last:mb-0 border border-slate-700/50">
                     <div>
-                      <div className="!bg-yellow-400 !p-1 !rounded !text-black mb-1">DEBUG: COMPLAINT TITLE FOLLOWS</div>
-                      <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>TEST CATEGORY: {c.category}</div>
+                      <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>{c.category}</div>
                       <div className="mt-0.5 text-[13px] !text-[#94a3b8]">
                         Flat {c.flat?.block}-{c.flat?.number}
                       </div>
                       <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed !text-[#e2e8f0]" style={{ color: '#e2e8f0' }}>
-                        TEST DESC: {c.description}
+                        {c.description}
                       </div>
                     </div>
                     <Badge tone="amber">open</Badge>
