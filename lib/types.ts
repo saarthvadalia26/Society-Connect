@@ -95,6 +95,8 @@ export interface Booking {
   facility_id: string;
   flat_id: string;
   date: string; // YYYY-MM-DD
+  start_time: string; // HH:MM
+  end_time: string; // HH:MM
   status: BookingStatus;
   created_at: string;
   decided_at: string | null;

@@ -7,6 +7,15 @@ import { Card, CardBody, CardHeader, Button, Input, Label, Textarea, Badge, Empt
 import { SubmitButton } from "@/components/submit-button";
 import { PageHeader } from "@/components/nav";
 
+function calcDuration(start: string | undefined, end: string | undefined) {
+  if (!start || !end) return 1;
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  const startH = sh + sm / 60;
+  const endH = eh + em / 60;
+  return Math.max(1, Math.ceil(endH - startH));
+}
+
 async function addFacilityAction(formData: FormData) {
   "use server";
   const user = await requireRole("admin");
@@ -102,7 +111,7 @@ export default async function AdminFacilitiesPage({ searchParams }: { searchPara
                 <Input id="fname" name="name" required placeholder="e.g. Clubhouse" />
               </div>
               <div>
-                <Label htmlFor="fee">Fee per booking (₹)</Label>
+                <Label htmlFor="fee">Fee per hour (₹)</Label>
                 <Input id="fee" name="fee" type="number" min={0} required />
               </div>
               <div>
@@ -128,7 +137,7 @@ export default async function AdminFacilitiesPage({ searchParams }: { searchPara
                       {f.description ? <div className="text-xs text-slate-500 dark:text-slate-400">{f.description}</div> : null}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-600/20 px-2.5 py-0.5 text-[11px] font-semibold text-blue-400">{fmtINR(f.fee)} / booking</span>
+                      <span className="inline-flex items-center rounded-full border border-blue-500/30 bg-blue-600/20 px-2.5 py-0.5 text-[11px] font-semibold text-blue-400">{fmtINR(f.fee)} / hour</span>
                       <form action={removeFacilityAction}>
                         <input type="hidden" name="id" value={f.id} />
                         <Button variant="ghost" type="submit" className="text-slate-400 hover:text-red-400 dark:text-slate-500 dark:hover:text-red-400">Remove</Button>
@@ -149,14 +158,17 @@ export default async function AdminFacilitiesPage({ searchParams }: { searchPara
             <EmptyState title="No pending requests" />
           ) : (
             <ul className="space-y-2">
-              {pending.map((b) => (
+              {pending.map((b) => {
+                const duration = calcDuration(b.start_time, b.end_time);
+                const totalFee = (b.facility?.fee ?? 0) * duration;
+                return (
                 <li key={b.id} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/50 bg-slate-800/40 px-4 py-3">
                   <div>
                     <div className="text-sm font-semibold text-slate-900 dark:text-white">
-                      {b.facility?.name} · {b.date}
+                      {b.facility?.name} · {b.date} ({b.start_time} - {b.end_time})
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">
-                      Flat {b.flat?.block}-{b.flat?.number} · fee {fmtINR(b.facility?.fee ?? 0)}
+                      Flat {b.flat?.block}-{b.flat?.number} · fee {fmtINR(totalFee)} ({duration} hr)
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -174,7 +186,7 @@ export default async function AdminFacilitiesPage({ searchParams }: { searchPara
                     </form>
                   </div>
                 </li>
-              ))}
+              )})}
             </ul>
           )}
         </CardBody>
@@ -191,7 +203,7 @@ export default async function AdminFacilitiesPage({ searchParams }: { searchPara
                 <li key={b.id} className="flex items-center justify-between rounded-lg border border-slate-700/30 bg-slate-800/20 px-4 py-3">
                   <div>
                     <div className="text-sm font-semibold text-slate-900 dark:text-slate-200">
-                      {b.facility?.name} · {b.date}
+                      {b.facility?.name} · {b.date} ({b.start_time} - {b.end_time})
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">
                       Flat {b.flat?.block}-{b.flat?.number}

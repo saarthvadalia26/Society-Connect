@@ -204,7 +204,7 @@ export const db = {
     // 3. Bulk-fetch all approved unbilled bookings for these flats (single query)
     const { data: allPendingBookings } = await sb
       .from("bookings")
-      .select("id, flat_id, facility_id, date")
+      .select("id, flat_id, facility_id, date, start_time, end_time")
       .in("flat_id", flatIds)
       .eq("status", "approved")
       .eq("fee_billed", false);
@@ -218,7 +218,7 @@ export const db = {
     }
 
     // 5. Build booking lookup by flat
-    const bookingsByFlat = new Map<string, Array<{ id: string; facility_id: string; date: string }>>();
+    const bookingsByFlat = new Map<string, Array<{ id: string; facility_id: string; date: string; start_time: string; end_time: string }>>();
     for (const bk of allPendingBookings ?? []) {
       if (!bookingsByFlat.has(bk.flat_id)) bookingsByFlat.set(bk.flat_id, []);
       bookingsByFlat.get(bk.flat_id)!.push(bk as any);
@@ -244,8 +244,17 @@ export const db = {
       for (const bk of bookings) {
         const fac = facById.get(bk.facility_id);
         if (!fac) continue;
-        lineItems.push({ label: `${fac.name} booking (${bk.date})`, amount: fac.fee });
-        amount += fac.fee;
+
+        // Compute booking duration to scale the fee
+        const [sh, sm] = (bk.start_time || "00:00").split(":").map(Number);
+        const [eh, em] = (bk.end_time || "23:59").split(":").map(Number);
+        const startH = sh + sm / 60;
+        const endH = eh + em / 60;
+        const duration = Math.max(1, Math.ceil(endH - startH));
+        const totalFee = fac.fee * duration;
+
+        lineItems.push({ label: `${fac.name} booking (${bk.date}, ${duration} hr)`, amount: totalFee });
+        amount += totalFee;
         bookingIdsToMark.push(bk.id);
       }
       billRows.push({
@@ -518,22 +527,26 @@ export const db = {
     const facById = new Map(((facs ?? []) as Facility[]).map((f) => [f.id, f] as const));
     return bookings.map((b) => ({ ...b, facility: facById.get(b.facility_id) }));
   },
-  async isFacilityBooked(facilityId: string, date: string): Promise<boolean> {
+  async isFacilityTimeBooked(facilityId: string, date: string, start_time: string, end_time: string): Promise<boolean> {
     const { data } = await client()
       .from("bookings")
       .select("id")
       .eq("facility_id", facilityId)
       .eq("date", date)
       .neq("status", "rejected")
-      .maybeSingle();
-    return !!data;
+      .lt("start_time", end_time)
+      .gt("end_time", start_time)
+      .limit(1);
+    return !!(data && data.length > 0);
   },
-  async requestBooking(input: { facility_id: string; flat_id: string; date: string }): Promise<boolean> {
-    if (await this.isFacilityBooked(input.facility_id, input.date)) return false;
+  async requestBooking(input: { facility_id: string; flat_id: string; date: string; start_time: string; end_time: string }): Promise<boolean> {
+    if (await this.isFacilityTimeBooked(input.facility_id, input.date, input.start_time, input.end_time)) return false;
     const { error } = await client().from("bookings").insert({
       facility_id: input.facility_id,
       flat_id: input.flat_id,
       date: input.date,
+      start_time: input.start_time,
+      end_time: input.end_time,
       status: "requested",
       fee_billed: false,
     });
