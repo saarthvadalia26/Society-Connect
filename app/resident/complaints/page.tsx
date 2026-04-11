@@ -90,20 +90,20 @@ export default async function ResidentComplaintsPage() {
             ) : (
               <ul className="space-y-3">
                 {complaints.map((c) => (
-                  <li key={c.id} className="rounded-lg border border-slate-700/50 bg-slate-800/40 p-4">
+                   <li key={c.id} className="border border-slate-800 rounded-xl bg-slate-900/50 p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="text-sm font-bold text-slate-900 dark:text-white">{c.category}</div>
+                      <div className="text-sm font-bold text-white" style={{ color: '#ffffff' }}>{c.category}</div>
                       {c.status === "open"
                         ? <span className="inline-flex items-center rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400">open</span>
                         : <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">resolved</span>
                       }
                     </div>
-                    <div className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-200">{c.description}</div>
+                    <div className="mt-2 text-sm leading-relaxed text-slate-200" style={{ color: '#e2e8f0' }}>{c.description}</div>
                     {c.photo_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={c.photo_url} alt="Complaint" className="mt-3 max-h-40 rounded-lg border border-slate-700/50" />
                     ) : null}
-                    <div className="mt-3 text-[11px] text-slate-400">
+                    <div className="mt-3 text-[11px] text-slate-400" style={{ color: '#94a3b8' }}>
                       Raised {new Date(c.created_at).toLocaleDateString("en-IN")}
                       {c.resolved_at ? ` · resolved ${new Date(c.resolved_at).toLocaleDateString("en-IN")}` : ""}
                     </div>
