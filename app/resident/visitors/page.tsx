@@ -64,24 +64,24 @@ export default async function ResidentVisitorsPage() {
                     `Hi ${v.name}, your entry code for our society is ${v.entry_code}. Please show this to the security guard at the gate on ${v.expected_on}.`,
                   );
                   return (
-                    <li key={v.id} className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                    <li key={v.id} className="flex items-start justify-between gap-3 py-4 first:pt-0 last:pb-0 border-b border-slate-800/50 last:border-0 hover:bg-slate-800/10 transition-colors">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-900">{v.name}</span>
+                          <span className="!text-lg !font-bold" style={{ color: '#ffffff', opacity: 1 }}>{v.name}</span>
                           {v.status === "entered" ? (
                             <Badge tone="green">entered</Badge>
                           ) : (
                             <Badge tone="amber">awaiting entry</Badge>
                           )}
                         </div>
-                        <div className="mt-0.5 text-xs text-slate-500">
+                        <div className="mt-0.5 text-xs !text-[#cbd5e1] opacity-100" style={{ color: '#cbd5e1' }}>
                           {v.purpose} · expected {v.expected_on}
                         </div>
-                        <div className="mt-1 inline-block rounded bg-slate-900 px-2 py-1 font-mono text-xs tracking-widest text-white">
+                        <div className="mt-2 inline-block rounded border border-slate-700 bg-slate-800 px-2 py-1 font-mono text-xs tracking-widest text-white">
                           {v.entry_code}
                         </div>
                         {v.entered_at ? (
-                          <div className="mt-1 text-[11px] text-slate-400">
+                          <div className="mt-1 text-[11px] !text-[#94a3b8]" style={{ color: '#94a3b8' }}>
                             Entered {new Date(v.entered_at).toLocaleString("en-IN")}
                           </div>
                         ) : null}
