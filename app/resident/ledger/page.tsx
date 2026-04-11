@@ -30,6 +30,7 @@ export default async function LedgerPage() {
   const paid = bills.filter((b) => b.status === "paid");
   const unpaid = bills.filter((b) => b.status === "unpaid");
   const totalDue = unpaid.reduce((s, b) => s + b.amount, 0);
+  console.log("DEBUG UNPAID BILLS:", unpaid);
 
   return (
     <div>
@@ -48,11 +49,12 @@ export default async function LedgerPage() {
               {unpaid.map((b) => (
                 <li key={b.id} className="flex items-center justify-between rounded-lg bg-slate-800/10 px-4 py-3 mb-2 last:mb-0 border border-slate-700/50">
                   <div>
-                    <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>{fmtPeriod(b.period)}</div>
-                    <div className="text-xs !text-[#94a3b8]" style={{ color: '#94a3b8' }}>Due {b.due_date}</div>
+                    <div className="!bg-yellow-400 !p-1 !rounded !text-black mb-1 text-[10px]">DEBUG: BILLING INFO FOLLOWS</div>
+                    <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>TEST PERIOD: {fmtPeriod(b.period)}</div>
+                    <div className="text-xs !text-[#94a3b8]" style={{ color: '#94a3b8' }}>TEST DUE: {b.due_date}</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm !font-black !text-[#ffffff]" style={{ color: '#ffffff' }}>{fmtCurrency(b.amount, user.currency)}</span>
+                    <span className="text-sm !font-black !text-[#ffffff]" style={{ color: '#ffffff' }}>TEST AMT: {fmtCurrency(b.amount, user.currency)}</span>
                     <form action={payAction}>
                       <input type="hidden" name="billId" value={b.id} />
                       <Button type="submit">Pay now</Button>
