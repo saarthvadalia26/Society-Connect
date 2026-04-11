@@ -181,27 +181,27 @@ export default async function MembersPage({ searchParams }: PageProps) {
                   <li key={u.id} className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-slate-900">{u.name}</span>
+                        <span className="!text-sm !font-bold !text-white !opacity-100" style={{ color: '#ffffff' }}>{u.name}</span>
                         <Badge tone="blue">secretary</Badge>
                       </div>
-                      <div className="text-xs text-slate-500">{u.email}</div>
+                      <div className="!text-xs !text-[#94a3b8]" style={{ color: '#94a3b8' }}>{u.email}</div>
                     </div>
                   </li>
                 ))}
               </ul>
-              <div className="mt-4 border-t border-slate-100 pt-4">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Transfer secretary role</div>
-                <p className="mb-2 text-xs text-slate-500">Hand over control to another resident. You'll become a resident and they'll become the new secretary.</p>
+              <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide !text-white" style={{ color: '#ffffff' }}>Transfer secretary role</div>
+                <p className="mb-2 text-xs !text-slate-300">Hand over control to another resident. You'll become a resident and they'll become the new secretary.</p>
                 {residents.length > 0 ? (
                   <form action={transferSecretaryAction} className="flex flex-wrap items-end gap-2">
                     <select
                       name="new_secretary_id"
                       required
-                      className="flex-1 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      className="flex-1 rounded-md border border-slate-700 bg-slate-900 px-3 py-1.5 text-sm text-white shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                     >
-                      <option value="">Select a resident...</option>
+                      <option value="" className="bg-slate-900">Select a resident...</option>
                       {residents.map((r) => (
-                        <option key={r.id} value={r.id}>{r.name} ({r.email})</option>
+                        <option key={r.id} value={r.id} className="bg-slate-900">{r.name} ({r.email})</option>
                       ))}
                     </select>
                     <Button variant="danger" type="submit">Transfer</Button>
@@ -227,14 +227,14 @@ export default async function MembersPage({ searchParams }: PageProps) {
                     return (
                       <li key={u.id} className="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
                         <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-slate-900">{u.name}</span>
-                            <Badge tone="slate">resident</Badge>
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            {u.email}
-                            {flat ? ` · Block ${flat.block}, Flat ${flat.number}` : ""}
-                          </div>
+                        <div className="flex items-center gap-2">
+                          <span className="!text-sm !font-bold !text-white !opacity-100" style={{ color: '#ffffff' }}>{u.name}</span>
+                          <Badge tone="slate">resident</Badge>
+                        </div>
+                        <div className="!text-xs !text-[#94a3b8]" style={{ color: '#94a3b8' }}>
+                          {u.email}
+                          {flat ? ` · Block ${flat.block}, Flat ${flat.number}` : ""}
+                        </div>
                         </div>
                         <form action={removeMemberAction}>
                           <input type="hidden" name="id" value={u.id} />
@@ -259,10 +259,10 @@ export default async function MembersPage({ searchParams }: PageProps) {
                     <li key={u.id} className="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-slate-900">{u.name}</span>
+                          <span className="!text-sm !font-bold !text-white !opacity-100" style={{ color: '#ffffff' }}>{u.name}</span>
                           <Badge tone="amber">guard</Badge>
                         </div>
-                        <div className="text-xs text-slate-500">{u.email}</div>
+                        <div className="!text-xs !text-[#94a3b8]" style={{ color: '#94a3b8' }}>{u.email}</div>
                       </div>
                       <form action={removeMemberAction}>
                         <input type="hidden" name="id" value={u.id} />
