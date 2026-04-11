@@ -48,11 +48,11 @@ export default async function LedgerPage() {
               {unpaid.map((b) => (
                 <li key={b.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                   <div>
-                    <div className="text-sm font-semibold text-slate-900 dark:text-white">{fmtPeriod(b.period)}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">Due {b.due_date}</div>
+                    <div className="text-sm font-bold text-white" style={{ color: '#ffffff' }}>{fmtPeriod(b.period)}</div>
+                    <div className="text-xs text-slate-300" style={{ color: '#cbd5e1' }}>Due {b.due_date}</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{fmtCurrency(b.amount, user.currency)}</span>
+                    <span className="text-sm font-black text-white" style={{ color: '#ffffff' }}>{fmtCurrency(b.amount, user.currency)}</span>
                     <form action={payAction}>
                       <input type="hidden" name="billId" value={b.id} />
                       <Button type="submit">Pay now</Button>

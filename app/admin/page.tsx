@@ -82,11 +82,11 @@ export default async function AdminDashboard() {
             {recentNotices.length === 0 ? (
               <EmptyState title="No notices yet" hint="Post one from the Notice board." />
             ) : (
-              <ul className="divide-y divide-slate-100">
+              <ul className="divide-y divide-slate-800">
                 {recentNotices.map((n) => (
                   <li key={n.id} className="py-3 first:pt-0 last:pb-0">
-                    <div className="text-sm font-bold text-slate-900 dark:text-white">{n.title}</div>
-                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-slate-600 dark:text-slate-200">{n.body}</div>
+                    <div className="text-sm font-bold text-white" style={{ color: '#f8fafc' }}>{n.title}</div>
+                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-slate-200">{n.body}</div>
                     <div className="mt-2 text-[11px] text-slate-400">{new Date(n.created_at).toLocaleDateString("en-IN")}</div>
                   </li>
                 ))}
@@ -108,11 +108,11 @@ export default async function AdminDashboard() {
                 {openComplaints.slice(0, 5).map((c) => (
                   <li key={c.id} className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
                     <div>
-                      <div className="text-sm font-bold text-slate-900 dark:text-white">{c.category}</div>
-                      <div className="mt-0.5 text-[13px] text-slate-500 dark:text-slate-400">
+                      <div className="text-sm font-bold text-white" style={{ color: '#f8fafc' }}>{c.category}</div>
+                      <div className="mt-0.5 text-[13px] text-slate-300">
                         Flat {c.flat?.block}-{c.flat?.number}
                       </div>
-                      <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-slate-600 dark:text-slate-200">
+                      <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-slate-200">
                         {c.description}
                       </div>
                     </div>
