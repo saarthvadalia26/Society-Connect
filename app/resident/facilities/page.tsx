@@ -57,7 +57,9 @@ export default async function ResidentFacilitiesPage() {
           <Card key={f.id}>
             <CardHeader title={f.name} subtitle={f.description ?? undefined} />
             <CardBody>
-              <div className="mb-3 text-xs text-slate-500">Fee: {fmtINR(f.fee)}</div>
+              <div className="mb-5 text-[13px] text-slate-500 dark:text-slate-300">
+                Fee: <span className="font-semibold text-slate-900 dark:text-white">{fmtINR(f.fee)}</span>
+              </div>
               <form action={requestBookingAction} className="flex flex-wrap items-end gap-3">
                 <input type="hidden" name="facility_id" value={f.id} />
                 <div>
@@ -75,7 +77,9 @@ export default async function ResidentFacilitiesPage() {
                       <span
                         key={d.iso}
                         className={`rounded px-2 py-0.5 text-[11px] ${
-                          isTaken ? "bg-red-100 text-red-700 line-through" : "bg-emerald-100 text-emerald-700"
+                          isTaken 
+                            ? "bg-red-50 text-red-600 line-through dark:bg-red-500/10 dark:text-red-400/80" 
+                            : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
                         }`}
                       >
                         {d.date}
@@ -95,24 +99,24 @@ export default async function ResidentFacilitiesPage() {
           {myBookings.length === 0 ? (
             <EmptyState title="No bookings yet" />
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="space-y-2">
               {myBookings.map((b) => (
-                <li key={b.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                <li key={b.id} className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/30 bg-slate-800/20 px-4 py-3">
                   <div>
-                    <div className="text-sm font-semibold text-slate-900">
+                    <div className="text-sm font-semibold text-slate-900 dark:text-white">
                       {b.facility?.name} · {b.date}
                     </div>
-                    <div className="text-xs text-slate-500">
+                    <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                       {b.facility ? `${fmtINR(b.facility.fee)} fee` : ""}
                       {b.fee_billed ? " · billed" : ""}
                     </div>
                   </div>
                   {b.status === "approved" ? (
-                    <Badge tone="green">approved</Badge>
+                    <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400">approved</span>
                   ) : b.status === "rejected" ? (
-                    <Badge tone="red">rejected</Badge>
+                    <span className="inline-flex items-center rounded-full border border-red-500/20 bg-red-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-red-400">rejected</span>
                   ) : (
-                    <Badge tone="amber">pending</Badge>
+                    <span className="inline-flex items-center rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400">pending</span>
                   )}
                 </li>
               ))}
