@@ -48,7 +48,7 @@ export default async function ExpensesPage() {
               </div>
               <div>
                 <Label htmlFor="spent_on">Date</Label>
-                <Input id="spent_on" name="spent_on" type="date" defaultValue={new Date().toISOString().slice(0, 10)} required />
+                <Input id="spent_on" name="spent_on" type="date" defaultValue={new Date().toISOString().slice(0, 10)} required style={{ color: '#0f172a' }} />
               </div>
               <div>
                 <Label htmlFor="note">Note</Label>
@@ -68,22 +68,22 @@ export default async function ExpensesPage() {
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-200 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
-                      <th className="py-2 pr-4">Date</th>
-                      <th className="py-2 pr-4">Category</th>
-                      <th className="py-2 pr-4">Vendor</th>
-                      <th className="py-2 pr-4">Amount</th>
-                      <th className="py-2 pr-4">Note</th>
+                    <tr className="border-b border-slate-700/40 dark:border-slate-700 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                      <th className="py-3 pr-4">Date</th>
+                      <th className="py-3 pr-4">Category</th>
+                      <th className="py-3 pr-4">Vendor</th>
+                      <th className="py-3 pr-4">Amount</th>
+                      <th className="py-3 pr-4">Note</th>
                     </tr>
                   </thead>
                   <tbody>
                     {expenses.map((e) => (
-                      <tr key={e.id} className="border-b border-slate-100">
-                        <td className="py-2 pr-4 text-slate-500">{e.spent_on}</td>
-                        <td className="py-2 pr-4 font-medium text-slate-900">{e.category}</td>
-                        <td className="py-2 pr-4 text-slate-700">{e.vendor}</td>
-                        <td className="py-2 pr-4 text-slate-900">{fmtINR(e.amount)}</td>
-                        <td className="py-2 pr-4 text-slate-500">{e.note ?? "—"}</td>
+                      <tr key={e.id} className="border-b border-slate-100 dark:border-slate-700/50 transition-colors hover:bg-slate-800/60">
+                        <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">{e.spent_on}</td>
+                        <td className="py-3 pr-4 font-semibold text-slate-900 dark:text-slate-100">{e.category}</td>
+                        <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{e.vendor}</td>
+                        <td className="py-3 pr-4 font-bold text-slate-900 dark:text-white">{fmtINR(e.amount)}</td>
+                        <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">{e.note ?? "—"}</td>
                       </tr>
                     ))}
                   </tbody>
