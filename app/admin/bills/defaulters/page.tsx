@@ -36,7 +36,7 @@ export default async function DefaultersPage() {
       </div>
 
       <Card className="mb-6">
-        <CardHeader title={`Critical · Red (${red.length})`} subtitle={`${fmtCurrency(red.reduce((s, r) => s + r.outstanding, 0))} outstanding`} />
+        <CardHeader title={`Critical · Red (${red.length})`} subtitle={`${fmtCurrency(red.reduce((s, r) => s + r.outstanding, 0), user.currency)} outstanding`} />
         <CardBody>
           {red.length === 0 ? (
             <EmptyState title="No critical defaulters" />
@@ -72,7 +72,7 @@ export default async function DefaultersPage() {
       </Card>
 
       <Card className="mb-6">
-        <CardHeader title={`Yellow (${yellow.length})`} subtitle={`${fmtCurrency(yellow.reduce((s, r) => s + r.outstanding, 0))} outstanding`} />
+        <CardHeader title={`Yellow (${yellow.length})`} subtitle={`${fmtCurrency(yellow.reduce((s, r) => s + r.outstanding, 0), user.currency)} outstanding`} />
         <CardBody>
           {yellow.length === 0 ? (
             <EmptyState title="No flats in yellow" />
