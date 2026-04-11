@@ -84,10 +84,10 @@ export default async function AdminDashboard() {
             ) : (
               <ul className="divide-y divide-slate-800">
                 {recentNotices.map((n) => (
-                  <li key={n.id} className="rounded-lg bg-slate-800/20 px-4 py-3 mb-2 last:mb-0">
-                    <div className="text-sm font-bold" style={{ color: '#ffffff', opacity: 1, visibility: 'visible' }}>{n.title}</div>
-                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed" style={{ color: '#e2e8f0', opacity: 1, visibility: 'visible' }}>{n.body}</div>
-                    <div className="mt-2 text-[11px] text-slate-400">{new Date(n.created_at).toLocaleDateString("en-IN")}</div>
+                  <li key={n.id} className="!rounded-lg !bg-slate-800/20 px-4 py-3 mb-2 last:mb-0">
+                    <div className="!text-lg !font-bold !text-[#FFFFFF]" style={{ color: '#FFFFFF' }}>{n.title}</div>
+                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed !text-[#CBD5E1]" style={{ color: '#CBD5E1' }}>{n.body}</div>
+                    <div className="mt-2 text-[11px] !text-[#94A3B8]" style={{ color: '#94A3B8' }}>{new Date(n.created_at).toLocaleDateString("en-IN")}</div>
                   </li>
                 ))}
               </ul>
@@ -106,13 +106,13 @@ export default async function AdminDashboard() {
             ) : (
               <ul className="divide-y divide-slate-100">
                 {openComplaints.slice(0, 5).map((c) => (
-                  <li key={c.id} className="flex items-start justify-between gap-3 rounded-lg bg-slate-800/20 px-4 py-3 mb-2 last:mb-0">
+                  <li key={c.id} className="flex items-start justify-between gap-3 !rounded-lg !bg-slate-800/20 px-4 py-3 mb-2 last:mb-0">
                     <div>
-                      <div className="text-sm font-bold" style={{ color: '#ffffff', opacity: 1, visibility: 'visible' }}>{c.category}</div>
-                      <div className="mt-0.5 text-[13px] text-slate-300">
+                      <div className="!text-lg !font-bold !text-[#FFFFFF]" style={{ color: '#FFFFFF' }}>{c.category}</div>
+                      <div className="mt-0.5 text-[13px] !text-[#CBD5E1]">
                         Flat {c.flat?.block}-{c.flat?.number}
                       </div>
-                      <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed" style={{ color: '#e2e8f0', opacity: 1, visibility: 'visible' }}>
+                      <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed !text-[#CBD5E1]" style={{ color: '#CBD5E1' }}>
                         {c.description}
                       </div>
                     </div>
