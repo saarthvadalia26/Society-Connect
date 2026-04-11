@@ -37,12 +37,19 @@ export function fmtPeriod(period: string): string {
   return new Date(y, m - 1, 1).toLocaleString("en-IN", { month: "long", year: "numeric" });
 }
 
-export function fmtINR(amount: number): string {
-  return new Intl.NumberFormat("en-IN", {
+export function fmtCurrency(amount: number, currency: string): string {
+  const fractionDigits = currency === "INR" ? 0 : 2;
+  const locale = currency === "USD" ? "en-US" : currency === "GBP" ? "en-GB" : currency === "EUR" ? "en-IE" : "en-IN";
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
+    currency: currency,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   }).format(amount);
+}
+
+export function fmtINR(amount: number): string {
+  return fmtCurrency(amount, "INR");
 }
 
 async function nextSerial(): Promise<string> {

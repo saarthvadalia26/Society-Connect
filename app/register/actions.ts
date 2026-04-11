@@ -9,6 +9,7 @@ export async function registerAction(prevState: any, formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const society = String(formData.get("society") ?? "").trim();
   const address = String(formData.get("address") ?? "").trim();
+  const currency = String(formData.get("currency") ?? "INR");
 
   if (!name || !email || !password || !society) {
     return { error: "All fields except address are required." };
@@ -61,7 +62,7 @@ export async function registerAction(prevState: any, formData: FormData) {
   // Insert Society
   const { data: societyRow, error: socError } = await supabase
     .from("societies")
-    .insert({ name: society, address: address || "" })
+    .insert({ name: society, address: address || "", currency })
     .select("id")
     .single();
     

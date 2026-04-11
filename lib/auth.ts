@@ -13,11 +13,15 @@ export async function getCurrentUser(): Promise<User | null> {
 
   const { data, error } = await supabase
     .from("app_users")
-    .select("id, email, name, role, society_id, flat_id")
+    .select("id, email, name, role, society_id, flat_id, societies(currency)")
     .ilike("email", authUser.email)
     .maybeSingle();
   if (error || !data) return null;
-  return data as User;
+  const user = {
+    ...data,
+    currency: (data as any).societies?.currency || "INR",
+  };
+  return user as User;
 }
 
 export async function requireUser(): Promise<User> {

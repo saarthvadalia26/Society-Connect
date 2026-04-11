@@ -2,10 +2,9 @@
 
 import { jsPDF } from "jspdf";
 import type { Bill, Expense, Flat, Society, User } from "./types";
-import { fmtPeriod } from "./db";
+import { fmtPeriod, fmtCurrency } from "./db";
 
-const FMT_INR = (n: number) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+
 
 function header(doc: jsPDF, society: Society, title: string) {
   doc.setFillColor(37, 99, 235); // brand-600
@@ -62,7 +61,7 @@ export function buildReceiptPdf({
   const items = bill.line_items ?? [{ label: `Maintenance — ${fmtPeriod(bill.period)}`, amount: bill.amount }];
   for (const item of items) {
     doc.text(item.label, 16, y);
-    doc.text(FMT_INR(item.amount), 194, y, { align: "right" });
+    doc.text(fmtCurrency(item.amount, society.currency), 194, y, { align: "right" });
     y += 7;
   }
 
@@ -73,7 +72,7 @@ export function buildReceiptPdf({
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
   doc.text("Total paid", 16, y);
-  doc.text(FMT_INR(bill.amount), 194, y, { align: "right" });
+  doc.text(fmtCurrency(bill.amount, society.currency), 194, y, { align: "right" });
 
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
@@ -113,11 +112,11 @@ export function buildYearlySummaryPdf({
   doc.setFont("helvetica", "bold");
   doc.text("Headline figures", 14, 42);
   doc.setFont("helvetica", "normal");
-  doc.text(`Collected:   ${FMT_INR(collected)}`, 14, 50);
-  doc.text(`Outstanding: ${FMT_INR(outstanding)}`, 14, 57);
-  doc.text(`Expenses:    ${FMT_INR(totalExpenses)}`, 14, 64);
+  doc.text(`Collected:   ${fmtCurrency(collected, society.currency)}`, 14, 50);
+  doc.text(`Outstanding: ${fmtCurrency(outstanding, society.currency)}`, 14, 57);
+  doc.text(`Expenses:    ${fmtCurrency(totalExpenses, society.currency)}`, 14, 64);
   doc.setFont("helvetica", "bold");
-  doc.text(`Net:         ${FMT_INR(net)}`, 14, 71);
+  doc.text(`Net:         ${fmtCurrency(net, society.currency)}`, 14, 71);
 
   // Monthly breakdown
   doc.setFont("helvetica", "bold");
@@ -131,8 +130,8 @@ export function buildYearlySummaryPdf({
     const c = periodBills.filter((b) => b.status === "paid").reduce((s, b) => s + b.amount, 0);
     const o = periodBills.filter((b) => b.status === "unpaid").reduce((s, b) => s + b.amount, 0);
     doc.text(fmtPeriod(period), 16, y);
-    doc.text(`Collected ${FMT_INR(c)}`, 90, y);
-    doc.text(`Outstanding ${FMT_INR(o)}`, 150, y);
+    doc.text(`Collected ${fmtCurrency(c, society.currency)}`, 90, y);
+    doc.text(`Outstanding ${fmtCurrency(o, society.currency)}`, 150, y);
     y += 6;
     if (y > 270) {
       doc.addPage();
@@ -157,7 +156,7 @@ export function buildYearlySummaryPdf({
       y = 20;
     }
     doc.text(`${e.spent_on}  ${e.category} — ${e.vendor}`, 16, y);
-    doc.text(FMT_INR(e.amount), 194, y, { align: "right" });
+    doc.text(fmtCurrency(e.amount, society.currency), 194, y, { align: "right" });
     y += 6;
   }
 

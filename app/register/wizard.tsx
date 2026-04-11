@@ -96,6 +96,20 @@ export function RegistrationWizard() {
                   <Label htmlFor="address">Full address (optional)</Label>
                   <Input id="address" name="address" placeholder="e.g. Sector 21, Pune, MH 411014" />
                 </div>
+                <div>
+                  <Label htmlFor="currency">Primary Currency</Label>
+                  <select
+                    id="currency"
+                    name="currency"
+                    defaultValue="INR"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                  >
+                    <option value="INR">Indian Rupee (₹ - INR)</option>
+                    <option value="USD">US Dollar ($ - USD)</option>
+                    <option value="GBP">British Pound (£ - GBP)</option>
+                    <option value="EUR">Euro (€ - EUR)</option>
+                  </select>
+                </div>
 
                 {state?.error ? (
                   <div className="mt-4 rounded-lg border border-red-200 bg-red-50/50 px-4 py-3 text-sm text-red-700 font-medium">

@@ -8,6 +8,7 @@ export interface Society {
   id: string;
   name: string;
   address: string;
+  currency: string;
   logo_url: string | null;
 }
 
@@ -17,6 +18,7 @@ export interface User {
   name: string;
   role: Role;
   society_id: string;
+  currency: string;
   flat_id: string | null;
 }
 
