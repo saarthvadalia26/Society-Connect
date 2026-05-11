@@ -1,7 +1,9 @@
 {
   "name": "society-connect",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "description": "A premium management platform for Residential Welfare Associations (RWA), built with Next.js and Supabase.",
+  "author": "Saarth Vadalia",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
