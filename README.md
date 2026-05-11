@@ -96,8 +96,3 @@ Society Connect features a **Premium High-Contrast Dark Mode** interface. Every 
 ## 👤 Author
 **Saarth Vadalia**
 *   GitHub: [@saarthvadalia26](https://github.com/saarthvadalia26)
-
----
-
-## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
