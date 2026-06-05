@@ -103,53 +103,63 @@ export const db = {
     rows: Array<{ block: string; number: string; ownerEmail?: string; ownerName?: string }>,
     societyId: string,
   ): Promise<number> {
+    if (rows.length === 0) return 0;
     const sb = client();
-    let added = 0;
-    for (const row of rows) {
-      const { data: exists } = await sb
-        .from("flats")
-        .select("id")
-        .eq("society_id", societyId)
-        .eq("block", row.block)
-        .eq("number", row.number)
-        .maybeSingle();
-      if (exists) continue;
 
-      let ownerId: string | null = null;
-      if (row.ownerEmail) {
-        const { data: user } = await sb
-          .from("app_users")
-          .select("id")
-          .ilike("email", row.ownerEmail)
-          .maybeSingle();
-        if (user) {
-          ownerId = user.id as string;
-        } else {
-          const { data: created } = await sb
-            .from("app_users")
-            .insert({
-              email: row.ownerEmail,
-              name: row.ownerName ?? row.ownerEmail,
-              role: "resident",
-              society_id: societyId,
-            })
-            .select("id")
-            .single();
-          ownerId = created?.id as string;
-        }
-      }
+    // 1. Bulk-fetch all existing flats for this society (single query)
+    const { data: existingFlats } = await sb
+      .from("flats")
+      .select("block, number")
+      .eq("society_id", societyId);
+    const existingFlatKeys = new Set(
+      (existingFlats ?? []).map((f: any) => `${f.block}|${f.number}`),
+    );
 
-      const { data: flat } = await sb
-        .from("flats")
-        .insert({ society_id: societyId, block: row.block, number: row.number, owner_user_id: ownerId })
-        .select("id")
-        .single();
-      if (ownerId && flat) {
-        await sb.from("app_users").update({ flat_id: flat.id }).eq("id", ownerId);
+    // Filter to only new rows
+    const newRows = rows.filter((r) => !existingFlatKeys.has(`${r.block}|${r.number}`));
+    if (newRows.length === 0) return 0;
+
+    // 2. Bulk-fetch existing users by email for all owner emails (single query)
+    const ownerEmails = [...new Set(newRows.map((r) => r.ownerEmail).filter(Boolean) as string[])];
+    const ownerEmailsLower = ownerEmails.map((e) => e.toLowerCase());
+    const { data: existingUsers } = ownerEmails.length > 0
+      ? await sb.from("app_users").select("id, email").in("email", ownerEmailsLower)
+      : { data: [] };
+    const userByEmail = new Map(
+      (existingUsers ?? []).map((u: any) => [u.email.toLowerCase(), u.id as string]),
+    );
+
+    // 3. Create new users for emails not found (batch insert)
+    const missingEmails = ownerEmails.filter((e) => !userByEmail.has(e.toLowerCase()));
+    if (missingEmails.length > 0) {
+      const toInsert = missingEmails.map((email) => {
+        const row = newRows.find((r) => r.ownerEmail?.toLowerCase() === email.toLowerCase())!;
+        return { email, name: row.ownerName ?? email, role: "resident", society_id: societyId };
+      });
+      const { data: createdUsers } = await sb.from("app_users").insert(toInsert).select("id, email");
+      for (const u of createdUsers ?? []) {
+        userByEmail.set((u as any).email.toLowerCase(), (u as any).id as string);
       }
-      added++;
     }
-    return added;
+
+    // 4. Batch-insert all new flats
+    const flatInserts = newRows.map((r) => ({
+      society_id: societyId,
+      block: r.block,
+      number: r.number,
+      owner_user_id: r.ownerEmail ? (userByEmail.get(r.ownerEmail.toLowerCase()) ?? null) : null,
+    }));
+    const { data: insertedFlats } = await sb.from("flats").insert(flatInserts).select("id, owner_user_id");
+
+    // 5. Batch-update flat_id on owner users
+    const flatAssignments = (insertedFlats ?? []).filter((f: any) => f.owner_user_id);
+    await Promise.all(
+      flatAssignments.map((f: any) =>
+        sb.from("app_users").update({ flat_id: f.id }).eq("id", f.owner_user_id),
+      ),
+    );
+
+    return insertedFlats?.length ?? 0;
   },
 
   // Bills
@@ -367,9 +377,8 @@ export const db = {
         red.push({ flat, owner, unpaidCount, outstanding });
       } else if (unpaidCount === 0) {
         green.push({ flat, owner });
-      } else if (unpaidCount === 1 && unpaid[0].period === period) {
-        yellow.push({ flat, owner, unpaidCount, outstanding });
       } else {
+        // 1–2 unpaid months (regardless of which periods) → yellow
         yellow.push({ flat, owner, unpaidCount, outstanding });
       }
     }

@@ -1,3 +1,6 @@
+"use client";
+
+import { useId } from "react";
 import { fmtCurrency } from "@/lib/db";
 
 export interface MonthlyDatum {
@@ -12,6 +15,10 @@ function shortMonth(period: string): string {
 }
 
 export function CollectionChart({ data, currency }: { data: MonthlyDatum[], currency: string }) {
+  const uid = useId().replace(/:/g, "");
+  const greenId = `greenGrad-${uid}`;
+  const amberId = `amberGrad-${uid}`;
+
   const width = 640;
   const height = 220;
   const padX = 40;
@@ -45,10 +52,10 @@ export function CollectionChart({ data, currency }: { data: MonthlyDatum[], curr
           const outH = Math.max(2, (d.outstanding / max) * innerH);
           return (
             <g key={d.period}>
-              <rect x={x0} y={height - padY - collH} width={barW} height={collH} fill="url(#greenGrad)" rx={4}>
+              <rect x={x0} y={height - padY - collH} width={barW} height={collH} fill={`url(#${greenId})`} rx={4}>
                 <title>{`Collected ${fmtCurrency(d.collected, currency)}`}</title>
               </rect>
-              <rect x={x0 + barW + 4} y={height - padY - outH} width={barW} height={outH} fill="url(#amberGrad)" rx={4}>
+              <rect x={x0 + barW + 4} y={height - padY - outH} width={barW} height={outH} fill={`url(#${amberId})`} rx={4}>
                 <title>{`Outstanding ${fmtCurrency(d.outstanding, currency)}`}</title>
               </rect>
               <text
@@ -66,11 +73,11 @@ export function CollectionChart({ data, currency }: { data: MonthlyDatum[], curr
         })}
 
         <defs>
-          <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={greenId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#34d399" />
             <stop offset="100%" stopColor="#10b981" />
           </linearGradient>
-          <linearGradient id="amberGrad" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={amberId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#fbbf24" />
             <stop offset="100%" stopColor="#f59e0b" />
           </linearGradient>

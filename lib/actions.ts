@@ -26,6 +26,7 @@ export async function deleteSocietyAction() {
   const flatIds = (flats ?? []).map((f: { id: string }) => f.id);
   if (flatIds.length > 0) {
     await supabase.from("visitors").delete().in("flat_id", flatIds);
+    // Delete bookings before facilities to avoid relying on cascade ordering
     await supabase.from("bookings").delete().in("flat_id", flatIds);
     await supabase.from("complaints").delete().in("flat_id", flatIds);
     await supabase.from("bills").delete().in("flat_id", flatIds);

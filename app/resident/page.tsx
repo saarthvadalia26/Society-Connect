@@ -13,7 +13,7 @@ export default async function ResidentHome() {
     user.flat_id ? db.listComplaintsForFlat(user.flat_id) : Promise.resolve([]),
   ]);
   const unpaid = bills.filter((b) => b.status === "unpaid");
-  const nextDue = unpaid[unpaid.length - 1] ?? unpaid[0];
+  const nextDue = unpaid[0]; // bills are period DESC — newest/most-recent is first
   const totalDue = unpaid.reduce((s, b) => s + b.amount, 0);
   const notices = allNotices.slice(0, 4);
   const openComplaints = myComplaints.filter((c) => c.status === "open").length;

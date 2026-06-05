@@ -85,9 +85,9 @@ export default async function AdminDashboard() {
               <ul className="divide-y divide-slate-800">
                 {recentNotices.map((n) => (
                   <li key={n.id} className="rounded-lg bg-slate-800/10 px-4 py-3 mb-2 last:mb-0 border border-slate-700/50">
-                    <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>{n.title}</div>
-                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed !text-[#e2e8f0]" style={{ color: '#e2e8f0' }}>{n.body}</div>
-                    <div className="mt-2 text-[11px] !text-[#94a3b8]" style={{ color: '#94a3b8' }}>{new Date(n.created_at).toLocaleDateString("en-IN")}</div>
+                    <div className="text-base font-bold text-slate-900 dark:text-white">{n.title}</div>
+                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-slate-600 dark:text-slate-300">{n.body}</div>
+                    <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">{new Date(n.created_at).toLocaleDateString("en-IN")}</div>
                   </li>
                 ))}
               </ul>
@@ -108,13 +108,13 @@ export default async function AdminDashboard() {
                 {openComplaints.slice(0, 5).map((c) => (
                   <li key={c.id} className="border border-slate-800 rounded-xl bg-slate-900/50 p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>{c.category}</div>
+                      <div className="text-base font-bold text-slate-900 dark:text-white">{c.category}</div>
                       <Badge tone="amber">open</Badge>
                     </div>
-                    <div className="mt-0.5 text-[13px] !text-[#94a3b8]" style={{ color: '#94a3b8' }}>
+                    <div className="mt-0.5 text-[13px] text-slate-500 dark:text-slate-400">
                       Flat {c.flat?.block}-{c.flat?.number}
                     </div>
-                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed !text-[#e2e8f0]" style={{ color: '#e2e8f0' }}>
+                    <div className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-slate-700 dark:text-slate-300">
                       {c.description}
                     </div>
                   </li>

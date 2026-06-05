@@ -1,11 +1,14 @@
 // WhatsApp deep link — opens wa.me with a pre-filled reminder. No API needed.
 // In v3 we can swap this for the WhatsApp Business API used in the gym app.
 
-const PORTAL_URL = "https://localhost:3000/login";
+import { fmtCurrency } from "@/lib/db";
 
-function buildMessage(opts: { name: string; amount: number; period: string; flat: string }) {
-  const amountStr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 })
-    .format(opts.amount);
+const PORTAL_URL =
+  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") + "/login" ||
+  "https://societyconnect.app/login";
+
+function buildMessage(opts: { name: string; amount: number; period: string; flat: string; currency: string }) {
+  const amountStr = fmtCurrency(opts.amount, opts.currency);
   return (
     `Hello ${opts.name}, a friendly reminder that your maintenance for ${opts.period} ` +
     `of ${amountStr} is pending for Flat ${opts.flat}. Please pay via the portal: ${PORTAL_URL}`
@@ -23,14 +26,16 @@ export function NudgeLink({
   amount,
   period,
   flat,
+  currency = "INR",
 }: {
   name: string;
   phone: string | null | undefined;
   amount: number;
   period: string;
   flat: string;
+  currency?: string;
 }) {
-  const text = encodeURIComponent(buildMessage({ name, amount, period, flat }));
+  const text = encodeURIComponent(buildMessage({ name, amount, period, flat, currency }));
   const num = digitsOnly(phone);
   const href = num ? `https://wa.me/${num}?text=${text}` : `https://wa.me/?text=${text}`;
   return (
