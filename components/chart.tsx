@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { fmtCurrency } from "@/lib/db";
+import { fmtCurrency } from "@/lib/format";
 
 export interface MonthlyDatum {
   period: string;

@@ -1,7 +1,7 @@
 // WhatsApp deep link — opens wa.me with a pre-filled reminder. No API needed.
 // In v3 we can swap this for the WhatsApp Business API used in the gym app.
 
-import { fmtCurrency } from "@/lib/db";
+import { fmtCurrency } from "@/lib/format";
 
 const PORTAL_URL =
   process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") + "/login" ||
