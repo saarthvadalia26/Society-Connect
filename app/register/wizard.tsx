@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useActionState } from "react";
+import { useFormState } from "react-dom";
 import { registerAction } from "./actions";
 import { toast } from "sonner";
 import { Card, CardBody, Label, Input } from "@/components/ui";
@@ -11,7 +11,7 @@ import { ArrowRight, Building, User } from "lucide-react";
 
 export function RegistrationWizard() {
   const [step, setStep] = useState(1);
-  const [state, formAction] = useActionState(registerAction, { error: "" });
+  const [state, formAction] = useFormState(registerAction, { error: "" });
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
