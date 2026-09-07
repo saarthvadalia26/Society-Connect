@@ -3,7 +3,7 @@ import { cn } from "@/lib/cn";
 
 export function Card({ className, children, ...rest }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-slate-700/80 dark:bg-slate-800", className)} {...rest}>
+    <div className={cn("rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-700/80 dark:bg-slate-800", className)} {...rest}>
       {children}
     </div>
   );
@@ -102,7 +102,7 @@ export function Badge({ tone = "slate", children }: { tone?: BadgeTone; children
 
 export function Stat({ label, value, hint, trend }: { label: string; value: string; hint?: string; trend?: "up" | "down" }) {
   return (
-    <Card className="p-6">
+    <Card className={cn("p-6 stat-card", trend && "border-l-4", trend === "up" ? "border-l-emerald-500" : trend === "down" ? "border-l-red-500" : "")}>
       <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</div>
       <div className="mt-2 flex items-baseline gap-2">
         <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">{value}</span>

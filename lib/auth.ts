@@ -1,7 +1,7 @@
 // Supabase-backed auth. Sign in with email + password.
 // getCurrentUser() returns the matching app_users row (linked by email).
 import { redirect } from "next/navigation";
-import { supabaseServer } from "./supabase";
+import { supabaseServer, supabaseAdmin } from "./supabase";
 import type { Role, User } from "./types";
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -11,7 +11,8 @@ export async function getCurrentUser(): Promise<User | null> {
   } = await supabase.auth.getUser();
   if (!authUser?.email) return null;
 
-  const { data, error } = await supabase
+  const db = supabaseAdmin() ?? supabase;
+  const { data, error } = await db
     .from("app_users")
     .select("id, email, name, role, society_id, flat_id, societies(currency)")
     .ilike("email", authUser.email)

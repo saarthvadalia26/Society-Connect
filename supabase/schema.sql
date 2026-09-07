@@ -13,6 +13,7 @@ create table if not exists societies (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,
   address text not null,
+  currency text not null default 'INR',
   logo_url text
 );
 
@@ -38,10 +39,9 @@ create table if not exists flats (
 );
 create index if not exists flats_society_idx on flats(society_id);
 
+alter table app_users drop constraint if exists app_users_flat_fk;
 alter table app_users
-  add constraint app_users_flat_fk foreign key (flat_id) references flats(id) on delete set null
-  not valid;
-alter table app_users validate constraint app_users_flat_fk;
+  add constraint app_users_flat_fk foreign key (flat_id) references flats(id) on delete set null;
 
 create table if not exists bills (
   id uuid primary key default gen_random_uuid(),
@@ -161,112 +161,151 @@ alter table bookings   enable row level security;
 alter table visitors   enable row level security;
 
 -- Anyone signed in can see society info (their own society only).
+drop policy if exists society_read on societies;
 create policy society_read on societies for select
-  using (id in (select society_id from app_users where id = auth.uid()));
+  using (id in (select society_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')));
+
+-- Allow society creation during registration.
+drop policy if exists societies_insert on societies;
+create policy societies_insert on societies for insert
+  with check (true);
 
 -- Users see their own row. Admins see everyone in their society.
+drop policy if exists app_users_self on app_users;
 create policy app_users_self on app_users for select
   using (
     id = auth.uid()
-    or society_id in (select society_id from app_users where id = auth.uid() and role = 'admin')
+    or lower(email) = lower(auth.jwt() ->> 'email')
+    or society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin')
   );
 
--- Helper macro: same-society check inlined per table.
-create policy flats_read on flats for select
-  using (society_id in (select society_id from app_users where id = auth.uid()));
-create policy flats_write on flats for all
-  using (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'))
-  with check (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'));
+-- Allow user profile creation during registration.
+drop policy if exists app_users_insert on app_users;
+create policy app_users_insert on app_users for insert
+  with check (true);
 
+-- Allow authenticated users to update their own app_users row.
+drop policy if exists app_users_self_update on app_users;
+create policy app_users_self_update on app_users for update
+  to authenticated
+  using (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'))
+  with check (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'));
+
+-- Helper macro: same-society check inlined per table.
+drop policy if exists flats_read on flats;
+create policy flats_read on flats for select
+  using (society_id in (select society_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')));
+
+drop policy if exists flats_write on flats;
+create policy flats_write on flats for all
+  using (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'))
+  with check (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'));
+
+drop policy if exists bills_read on bills;
 create policy bills_read on bills for select
   using (
     flat_id in (
       select id from flats
-      where society_id in (select society_id from app_users where id = auth.uid())
+      where society_id in (select society_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'))
     )
   );
+
+drop policy if exists bills_admin_write on bills;
 create policy bills_admin_write on bills for all
   using (
     flat_id in (
       select id from flats
-      where society_id in (select society_id from app_users where id = auth.uid() and role = 'admin')
+      where society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin')
     )
   )
   with check (
     flat_id in (
       select id from flats
-      where society_id in (select society_id from app_users where id = auth.uid() and role = 'admin')
+      where society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin')
     )
   );
 
+drop policy if exists expenses_admin on expenses;
 create policy expenses_admin on expenses for all
-  using (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'))
-  with check (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'));
+  using (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'))
+  with check (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'));
 
+drop policy if exists notices_read on notices;
 create policy notices_read on notices for select
-  using (society_id in (select society_id from app_users where id = auth.uid()));
-create policy notices_admin_write on notices for all
-  using (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'))
-  with check (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'));
+  using (society_id in (select society_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')));
 
+drop policy if exists notices_admin_write on notices;
+create policy notices_admin_write on notices for all
+  using (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'))
+  with check (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'));
+
+drop policy if exists complaints_resident on complaints;
 create policy complaints_resident on complaints for all
   using (
-    flat_id in (select flat_id from app_users where id = auth.uid())
+    flat_id in (select flat_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'))
     or flat_id in (
       select id from flats where society_id in
-      (select society_id from app_users where id = auth.uid() and role = 'admin')
+      (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin')
     )
   )
   with check (
-    flat_id in (select flat_id from app_users where id = auth.uid())
+    flat_id in (select flat_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'))
     or flat_id in (
       select id from flats where society_id in
-      (select society_id from app_users where id = auth.uid() and role = 'admin')
+      (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin')
     )
   );
 
+drop policy if exists contacts_read on contacts;
 create policy contacts_read on contacts for select
-  using (society_id in (select society_id from app_users where id = auth.uid()));
+  using (society_id in (select society_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')));
+
+drop policy if exists contacts_admin_write on contacts;
 create policy contacts_admin_write on contacts for all
-  using (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'))
-  with check (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'));
+  using (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'))
+  with check (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'));
 
+drop policy if exists facilities_read on facilities;
 create policy facilities_read on facilities for select
-  using (society_id in (select society_id from app_users where id = auth.uid()));
-create policy facilities_admin_write on facilities for all
-  using (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'))
-  with check (society_id in (select society_id from app_users where id = auth.uid() and role = 'admin'));
+  using (society_id in (select society_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')));
 
+drop policy if exists facilities_admin_write on facilities;
+create policy facilities_admin_write on facilities for all
+  using (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'))
+  with check (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'));
+
+drop policy if exists bookings_resident on bookings;
 create policy bookings_resident on bookings for all
   using (
-    flat_id in (select flat_id from app_users where id = auth.uid())
+    flat_id in (select flat_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'))
     or flat_id in (
       select id from flats where society_id in
-      (select society_id from app_users where id = auth.uid() and role = 'admin')
+      (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin')
     )
   )
   with check (
-    flat_id in (select flat_id from app_users where id = auth.uid())
+    flat_id in (select flat_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'))
     or flat_id in (
       select id from flats where society_id in
-      (select society_id from app_users where id = auth.uid() and role = 'admin')
+      (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin')
     )
   );
 
 -- Visitors: residents see/create their own; admins see all in society;
 -- guards can read all and update entered status.
+drop policy if exists visitors_resident on visitors;
 create policy visitors_resident on visitors for all
   using (
-    flat_id in (select flat_id from app_users where id = auth.uid())
+    flat_id in (select flat_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'))
     or flat_id in (
       select id from flats where society_id in
-      (select society_id from app_users where id = auth.uid() and role in ('admin', 'guard'))
+      (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role in ('admin', 'guard'))
     )
   )
   with check (
-    flat_id in (select flat_id from app_users where id = auth.uid())
+    flat_id in (select flat_id from app_users where id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'))
     or flat_id in (
       select id from flats where society_id in
-      (select society_id from app_users where id = auth.uid() and role in ('admin', 'guard'))
+      (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role in ('admin', 'guard'))
     )
   );

@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { supabaseServer } from "@/lib/supabase";
+import { supabaseServer, supabaseAdmin } from "@/lib/supabase";
 import { Card, CardBody, CardHeader, Button, Input, Label, Badge, EmptyState } from "@/components/ui";
 import { AddMemberForm } from "@/components/add-member-form";
 import { PageHeader } from "@/components/nav";
@@ -29,9 +29,10 @@ async function addMemberAction(formData: FormData) {
   }
 
   const supabase = supabaseServer();
+  const dbClient = supabaseAdmin() ?? supabase;
 
   // Check if email already exists
-  const { data: existingUser } = await supabase
+  const { data: existingUser } = await dbClient
     .from("app_users")
     .select("id")
     .ilike("email", email)
@@ -44,7 +45,7 @@ async function addMemberAction(formData: FormData) {
   let flatId: string | null = null;
   if (block && flatNumber) {
     // Find or create the flat
-    const { data: existingFlat } = await supabase
+    const { data: existingFlat } = await dbClient
       .from("flats")
       .select("id")
       .eq("society_id", admin.society_id)
@@ -54,7 +55,7 @@ async function addMemberAction(formData: FormData) {
     if (existingFlat) {
       flatId = existingFlat.id;
     } else {
-      const { data: newFlat } = await supabase
+      const { data: newFlat } = await dbClient
         .from("flats")
         .insert({ society_id: admin.society_id, block, number: flatNumber })
         .select("id")
@@ -63,7 +64,7 @@ async function addMemberAction(formData: FormData) {
     }
   }
 
-  const { error: profileError } = await supabase.from("app_users").insert({
+  const { error: profileError } = await dbClient.from("app_users").insert({
     email,
     name,
     role,
@@ -77,13 +78,13 @@ async function addMemberAction(formData: FormData) {
 
   // Link flat to owner if resident
   if (flatId) {
-    const { data: newUser } = await supabase
+    const { data: newUser } = await dbClient
       .from("app_users")
       .select("id")
       .ilike("email", email)
       .maybeSingle();
     if (newUser) {
-      await supabase.from("flats").update({ owner_user_id: newUser.id }).eq("id", flatId);
+      await dbClient.from("flats").update({ owner_user_id: newUser.id }).eq("id", flatId);
     }
   }
 
@@ -107,15 +108,15 @@ async function transferSecretaryAction(formData: FormData) {
   const admin = await requireRole("admin");
   const newSecretaryId = String(formData.get("new_secretary_id") ?? "");
   if (!newSecretaryId || newSecretaryId === admin.id) return;
-  const supabase = supabaseServer();
+  const db = supabaseAdmin() ?? supabaseServer();
   // Promote the chosen resident to admin (secretary)
-  await supabase
+  await db
     .from("app_users")
     .update({ role: "admin" })
     .eq("id", newSecretaryId)
     .eq("society_id", admin.society_id);
   // Demote current secretary to resident
-  await supabase
+  await db
     .from("app_users")
     .update({ role: "resident" })
     .eq("id", admin.id);
@@ -129,10 +130,10 @@ async function removeMemberAction(formData: FormData) {
   const admin = await requireRole("admin");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
-  const supabase = supabaseServer();
+  const db = supabaseAdmin() ?? supabaseServer();
   // Don't allow removing yourself
   if (id === admin.id) return;
-  await supabase.from("app_users").delete().eq("id", id).eq("society_id", admin.society_id);
+  await db.from("app_users").delete().eq("id", id).eq("society_id", admin.society_id);
   revalidatePath("/admin/members");
 }
 

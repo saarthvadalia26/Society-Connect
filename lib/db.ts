@@ -4,7 +4,7 @@
 //
 // Authorisation is enforced by Postgres RLS, not by this module.
 
-import { supabaseServer } from "./supabase";
+import { supabaseServer, supabaseAdmin } from "./supabase";
 import type {
   Bill,
   Booking,
@@ -28,6 +28,10 @@ import { currentPeriod, fmtCurrency } from "./format";
 
 function client() {
   return supabaseServer();
+}
+
+function adminClient() {
+  return supabaseAdmin() ?? supabaseServer();
 }
 
 function todayISO(): string {
@@ -87,7 +91,7 @@ export const db = {
     societyId: string,
   ): Promise<number> {
     if (rows.length === 0) return 0;
-    const sb = client();
+    const sb = adminClient();
 
     // 1. Bulk-fetch all existing flats for this society (single query)
     const { data: existingFlats } = await sb
@@ -175,7 +179,7 @@ export const db = {
     period: string,
     baseAmount = 3000,
   ): Promise<{ created: number; skipped: number; noFlats: boolean }> {
-    const sb = client();
+    const sb = adminClient();
     console.log(`[generateBills] Starting for society=${societyId} period=${period} amount=${baseAmount}`);
 
     // 1. Fetch all data upfront in parallel — eliminates the N+1 query problem

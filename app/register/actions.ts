@@ -19,9 +19,11 @@ export async function registerAction(prevState: any, formData: FormData) {
   }
 
   const supabase = supabaseServer();
+  const adminClient = supabaseAdmin();
+  const db = adminClient ?? supabase;
 
   // Check if society already exists (case-insensitive)
-  const { data: existingSociety } = await supabase
+  const { data: existingSociety } = await db
     .from("societies")
     .select("id")
     .ilike("name", society)
@@ -43,6 +45,9 @@ export async function registerAction(prevState: any, formData: FormData) {
   }
   
   const userId = authData?.user?.id;
+  if (!userId) {
+    return { error: "Failed to create user account. Please try again." };
+  }
 
   // Sign them in
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
@@ -51,7 +56,7 @@ export async function registerAction(prevState: any, formData: FormData) {
   }
 
   // In case profile somehow exists (edge case)
-  const { data: existingUser } = await supabase
+  const { data: existingUser } = await db
     .from("app_users")
     .select("id")
     .ilike("email", email)
@@ -61,15 +66,15 @@ export async function registerAction(prevState: any, formData: FormData) {
     redirect("/admin/onboarding");
   }
 
-  // Insert Society
-  const { data: societyRow, error: socError } = await supabase
+  // Insert Society (using admin client to avoid RLS restrictions on new tenant creation)
+  const { data: societyRow, error: socError } = await db
     .from("societies")
     .insert({ name: society, address: address || "", currency })
     .select("id")
     .single();
     
   if (socError || !societyRow) {
-    if (userId) await supabaseAdmin()?.auth.admin.deleteUser(userId);
+    if (userId && adminClient) await adminClient.auth.admin.deleteUser(userId);
     // If unique constraint triggers here instead of our earlier check
     if (socError?.code === '23505') {
         return { error: "Database Error: Society Name already exists." };
@@ -77,8 +82,9 @@ export async function registerAction(prevState: any, formData: FormData) {
     return { error: `Database Error (societies): ${socError?.message ?? "Unknown error"}` };
   }
 
-  // Insert Profile
-  const { error: userError } = await supabase.from("app_users").insert({
+  // Insert Profile (using admin client to avoid RLS restrictions on user creation)
+  const { error: userError } = await db.from("app_users").insert({
+    id: userId,
     email,
     name,
     role: "admin",
@@ -86,7 +92,8 @@ export async function registerAction(prevState: any, formData: FormData) {
   });
   
   if (userError) {
-    if (userId) await supabaseAdmin()?.auth.admin.deleteUser(userId);
+    if (userId && adminClient) await adminClient.auth.admin.deleteUser(userId);
+    await db.from("societies").delete().eq("id", societyRow.id);
     return { error: `Database Error (app_users): ${userError.message}` };
   }
 
