@@ -128,13 +128,13 @@ export default function LoginPage({ searchParams }: PageProps) {
       </div>
 
       {/* ── RIGHT PANEL: Login Form ──────────────────────────── */}
-      <div className="flex flex-col items-center justify-center bg-slate-50 px-6 py-14 sm:px-12">
+      <div className="flex flex-col items-center justify-center bg-slate-900 px-6 py-14 sm:px-12">
         {/* Mobile logo — only visible below lg */}
         <div className="mb-8 flex flex-col items-center lg:hidden">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-indigo-700 text-xl font-bold text-white shadow-lg">
             SC
           </div>
-          <span className="mt-3 text-base font-semibold text-slate-700">
+          <span className="mt-3 text-base font-semibold text-slate-200">
             Society Connect
           </span>
         </div>
@@ -142,15 +142,15 @@ export default function LoginPage({ searchParams }: PageProps) {
         {/* Form card */}
         <div className="w-full max-w-md animate-fade-in">
           <div className="mb-8 lg:text-left text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-100">
               Welcome back
             </h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-400">
               Sign in with the credentials your society secretary gave you.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/60">
+          <div className="rounded-2xl border border-slate-800 bg-slate-950/70 backdrop-blur p-8 shadow-2xl shadow-black/40">
             <form action={signInAction} className="space-y-5">
               {/* Email */}
               <div>
@@ -162,7 +162,7 @@ export default function LoginPage({ searchParams }: PageProps) {
                   autoComplete="email"
                   required
                   placeholder="you@example.com"
-                  className="mt-1 rounded-xl border-slate-200 shadow-inner focus:border-blue-600 focus:ring-blue-600/20"
+                  className="mt-1 rounded-xl"
                 />
               </div>
 
@@ -172,7 +172,7 @@ export default function LoginPage({ searchParams }: PageProps) {
                   <Label htmlFor="password">Password</Label>
                   <a
                     href="/forgot-password"
-                    className="text-xs font-medium text-slate-500 transition-colors hover:text-brand-600"
+                    className="text-xs font-medium text-slate-400 transition-colors hover:text-brand-400"
                   >
                     Forgot password?
                   </a>
@@ -182,18 +182,18 @@ export default function LoginPage({ searchParams }: PageProps) {
                   name="password"
                   autoComplete="current-password"
                   required
-                  className="mt-1 rounded-xl border-slate-200 shadow-inner focus:border-blue-600 focus:ring-blue-600/20"
+                  className="mt-1 rounded-xl"
                 />
               </div>
 
               {/* Success / Error banners */}
               {successMsg ? (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 px-4 py-3 text-sm font-medium text-emerald-300">
                   {successMsg}
                 </div>
               ) : null}
               {errorMsg ? (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                <div className="rounded-xl border border-red-500/30 bg-red-950/40 px-4 py-3 text-sm font-medium text-red-300">
                   {errorMsg}
                 </div>
               ) : null}
@@ -205,11 +205,11 @@ export default function LoginPage({ searchParams }: PageProps) {
             </form>
           </div>
 
-          <p className="mt-8 text-center text-sm text-slate-500">
+          <p className="mt-8 text-center text-sm text-slate-400">
             Setting up a new society?{" "}
             <a
               href="/register"
-              className="font-semibold text-slate-900 transition-colors hover:text-brand-600"
+              className="font-semibold text-slate-200 transition-colors hover:text-brand-400"
             >
               Register your society
             </a>

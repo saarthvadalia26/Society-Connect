@@ -3,15 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f8fafc;
-  --fg: #0f172a;
-  --foreground: 222.2 84% 4.9%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --bg: #0f172a;
+  --fg: #e2e8f0;
+  --foreground: 0 0% 100%;
+  --muted-foreground: 215 20.2% 65.1%;
   --sidebar-w: 260px;
+  color-scheme: dark;
 }
 
 .dark {
   --bg: #0f172a;
+  --fg: #e2e8f0;
   --foreground: 0 0% 100%;
   --muted-foreground: 215 20.2% 65.1%;
   color-scheme: dark;
@@ -28,14 +30,9 @@ html, body {
 
 body {
   background: var(--bg);
-  color: var(--fg, #0f172a);
+  color: var(--fg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-.dark body {
-  --fg: #e2e8f0;
-  color: var(--fg);
 }
 
 /* Smooth page transitions */

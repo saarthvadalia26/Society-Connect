@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function RegisterPage() {
   return (
-    <main className="flex min-h-screen bg-slate-50">
+    <main className="flex min-h-screen bg-slate-950">
       {/* Left: Premium Dark Marketing Panel (Deep Navy) */}
       <div className="hidden relative w-1/2 flex-col justify-between overflow-hidden bg-slate-900 bg-grid-pattern-slate p-12 text-white lg:flex">
         

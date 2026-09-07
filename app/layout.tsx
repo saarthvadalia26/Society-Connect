@@ -14,15 +14,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="en" className={`dark ${inter.className}`}>
       <body>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('sc-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()`,
+            __html: `(function(){try{document.documentElement.classList.add('dark');localStorage.removeItem('sc-theme');}catch(e){}})()`,
           }}
         />
         {children}
-        <Toaster theme="system" />
+        <Toaster theme="dark" />
         <ToastListener />
       </body>
     </html>
