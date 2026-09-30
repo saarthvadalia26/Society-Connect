@@ -8,10 +8,12 @@ import { PageHeader } from "@/components/nav";
 async function payAction(formData: FormData) {
   "use server";
   const user = await requireRole("resident");
+  if (!user.flat_id) return;
   const billId = String(formData.get("billId") ?? "");
   if (!billId) return;
-  // Stubbed payment: in v2 this hits Razorpay, on success calls markBillPaid.
-  await db.markBillPaid(billId);
+
+  // Verify ownership: only permit marking bills that belong to this resident's flat & society
+  await db.markBillPaid(billId, user.society_id, user.flat_id);
   revalidatePath("/resident/ledger");
   redirect("/resident/ledger");
 }
@@ -46,13 +48,13 @@ export default async function LedgerPage() {
           ) : (
             <ul className="divide-y divide-slate-100 dark:divide-slate-700/50">
               {unpaid.map((b) => (
-                <li key={b.id} className="flex items-center justify-between rounded-lg bg-slate-800/10 px-4 py-3 mb-2 last:mb-0 border border-slate-700/50">
+                <li key={b.id} className="flex items-center justify-between rounded-lg bg-slate-50 dark:bg-slate-800/40 px-4 py-3 mb-2 last:mb-0 border border-slate-200 dark:border-slate-700/50">
                   <div>
-                    <div className="!text-lg !font-bold !text-[#ffffff]" style={{ color: '#ffffff' }}>{fmtPeriod(b.period)}</div>
-                    <div className="text-xs !text-[#94a3b8]" style={{ color: '#94a3b8' }}>Due {b.due_date}</div>
+                    <div className="text-base font-bold text-slate-900 dark:text-white">{fmtPeriod(b.period)}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Due {b.due_date}</div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm !font-black !text-[#ffffff]" style={{ color: '#ffffff' }}>{fmtCurrency(b.amount, user.currency)}</span>
+                    <span className="text-sm font-black text-slate-900 dark:text-white">{fmtCurrency(b.amount, user.currency)}</span>
                     <form action={payAction}>
                       <input type="hidden" name="billId" value={b.id} />
                       <Button type="submit">Pay now</Button>

@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { Label, Input } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
 import { PasswordInput } from "@/components/password-input";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { ShieldCheck, BarChart3, Users } from "lucide-react";
 
 interface PageProps {
@@ -128,13 +129,18 @@ export default function LoginPage({ searchParams }: PageProps) {
       </div>
 
       {/* ── RIGHT PANEL: Login Form ──────────────────────────── */}
-      <div className="flex flex-col items-center justify-center bg-slate-900 px-6 py-14 sm:px-12">
+      <div className="relative flex flex-col items-center justify-center bg-slate-50 px-6 py-14 sm:px-12 dark:bg-slate-900 transition-colors">
+        {/* Top-right theme toggle */}
+        <div className="absolute top-5 right-5">
+          <ThemeToggle />
+        </div>
+
         {/* Mobile logo — only visible below lg */}
         <div className="mb-8 flex flex-col items-center lg:hidden">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-indigo-700 text-xl font-bold text-white shadow-lg">
             SC
           </div>
-          <span className="mt-3 text-base font-semibold text-slate-200">
+          <span className="mt-3 text-base font-semibold text-slate-800 dark:text-slate-200">
             Society Connect
           </span>
         </div>
@@ -142,15 +148,15 @@ export default function LoginPage({ searchParams }: PageProps) {
         {/* Form card */}
         <div className="w-full max-w-md animate-fade-in">
           <div className="mb-8 lg:text-left text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-100">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
               Welcome back
             </h1>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Sign in with the credentials your society secretary gave you.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/70 backdrop-blur p-8 shadow-2xl shadow-black/40">
+          <div className="rounded-2xl border border-slate-200 bg-white/95 backdrop-blur p-8 shadow-xl dark:border-slate-800 dark:bg-slate-950/70 dark:shadow-2xl dark:shadow-black/40">
             <form action={signInAction} className="space-y-5">
               {/* Email */}
               <div>
@@ -172,7 +178,7 @@ export default function LoginPage({ searchParams }: PageProps) {
                   <Label htmlFor="password">Password</Label>
                   <a
                     href="/forgot-password"
-                    className="text-xs font-medium text-slate-400 transition-colors hover:text-brand-400"
+                    className="text-xs font-medium text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors"
                   >
                     Forgot password?
                   </a>
@@ -188,28 +194,28 @@ export default function LoginPage({ searchParams }: PageProps) {
 
               {/* Success / Error banners */}
               {successMsg ? (
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 px-4 py-3 text-sm font-medium text-emerald-300">
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
                   {successMsg}
                 </div>
               ) : null}
               {errorMsg ? (
-                <div className="rounded-xl border border-red-500/30 bg-red-950/40 px-4 py-3 text-sm font-medium text-red-300">
+                <div className="rounded-xl border border-red-500/30 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 dark:bg-red-950/40 dark:text-red-300">
                   {errorMsg}
                 </div>
               ) : null}
 
               {/* Shimmer CTA */}
-              <SubmitButton loadingText="Signing in..." className="mt-2 py-3 text-base rounded-xl bg-blue-600 hover:bg-blue-700">
+              <SubmitButton loadingText="Signing in..." className="mt-2 py-3 text-base rounded-xl bg-brand-600 hover:bg-brand-700">
                 Sign in
               </SubmitButton>
             </form>
           </div>
 
-          <p className="mt-8 text-center text-sm text-slate-400">
+          <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
             Setting up a new society?{" "}
             <a
               href="/register"
-              className="font-semibold text-slate-200 transition-colors hover:text-brand-400"
+              className="font-semibold text-brand-600 hover:text-brand-700 dark:text-slate-200 dark:hover:text-brand-400 transition-colors"
             >
               Register your society
             </a>

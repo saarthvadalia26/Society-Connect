@@ -16,6 +16,9 @@ export async function GET(_req: Request, { params }: { params: { billId: string 
   if (user.role === "resident" && user.flat_id !== flat.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+  if (user.role === "admin" && user.society_id !== flat.society_id) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   if (user.role !== "admin" && user.role !== "resident") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

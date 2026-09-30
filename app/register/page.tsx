@@ -1,4 +1,5 @@
 import { RegistrationWizard } from "./wizard";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata = {
   title: "Register - Society Connect",
@@ -7,7 +8,7 @@ export const metadata = {
 
 export default function RegisterPage() {
   return (
-    <main className="flex min-h-screen bg-slate-950">
+    <main className="flex min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
       {/* Left: Premium Dark Marketing Panel (Deep Navy) */}
       <div className="hidden relative w-1/2 flex-col justify-between overflow-hidden bg-slate-900 bg-grid-pattern-slate p-12 text-white lg:flex">
         
@@ -43,7 +44,7 @@ export default function RegisterPage() {
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
               </span>
-              UPI Integrated
+              Multi-Tenant Architecture
             </div>
           </div>
         </div>
@@ -55,7 +56,10 @@ export default function RegisterPage() {
       </div>
 
       {/* Right: Registration Form */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 sm:px-12">
+      <div className="relative flex flex-1 flex-col items-center justify-center px-6 py-12 sm:px-12">
+        <div className="absolute top-5 right-5">
+          <ThemeToggle />
+        </div>
         <RegistrationWizard />
       </div>
     </main>

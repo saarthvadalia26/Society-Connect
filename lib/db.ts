@@ -2,8 +2,7 @@
 // Every page/server-action talks to this module via the exported `db` object.
 // All methods are async (return Promises) — call sites must `await` them.
 //
-// Authorisation is enforced by Postgres RLS, not by this module.
-
+import crypto from "node:crypto";
 import { supabaseServer, supabaseAdmin } from "./supabase";
 import type {
   Bill,
@@ -295,10 +294,21 @@ export const db = {
 
     return { created: billRows.length, skipped: alreadyBilledFlatIds.size, noFlats: false };
   },
-  async markBillPaid(billId: string): Promise<boolean> {
+  async markBillPaid(billId: string, societyId?: string, flatId?: string): Promise<boolean> {
     const sb = client();
-    const { data: bill } = await sb.from("bills").select("status").eq("id", billId).maybeSingle();
+    let query = sb.from("bills").select("id, status, flat_id, flats(society_id)").eq("id", billId);
+    if (flatId) {
+      query = query.eq("flat_id", flatId);
+    }
+    const { data: bill } = await query.maybeSingle();
     if (!bill || bill.status === "paid") return false;
+
+    // Verify society if provided
+    const billSocietyId = (bill as any)?.flats?.society_id;
+    if (societyId && billSocietyId && billSocietyId !== societyId) {
+      return false;
+    }
+
     const serial = await nextSerial();
     const { error } = await sb
       .from("bills")
@@ -463,8 +473,19 @@ export const db = {
       photo_url: input.photo_url ?? null,
     });
   },
-  async resolveComplaint(id: string): Promise<boolean> {
-    const { error } = await client()
+  async resolveComplaint(id: string, societyId?: string): Promise<boolean> {
+    const sb = client();
+    if (societyId) {
+      const { data: comp } = await sb
+        .from("complaints")
+        .select("id, flat_id, flats(society_id)")
+        .eq("id", id)
+        .maybeSingle();
+      if (!comp || (comp as any)?.flats?.society_id !== societyId) {
+        return false;
+      }
+    }
+    const { error } = await sb
       .from("complaints")
       .update({ status: "resolved", resolved_at: todayISO() })
       .eq("id", id);
@@ -484,8 +505,10 @@ export const db = {
   async addContact(input: Omit<Contact, "id">): Promise<void> {
     await client().from("contacts").insert(input);
   },
-  async removeContact(id: string): Promise<boolean> {
-    const { error } = await client().from("contacts").delete().eq("id", id);
+  async removeContact(id: string, societyId?: string): Promise<boolean> {
+    let q = client().from("contacts").delete().eq("id", id);
+    if (societyId) q = q.eq("society_id", societyId);
+    const { error } = await q;
     return !error;
   },
 
@@ -555,8 +578,19 @@ export const db = {
     });
     return !error;
   },
-  async decideBooking(id: string, decision: "approved" | "rejected"): Promise<boolean> {
-    const { error } = await client()
+  async decideBooking(id: string, decision: "approved" | "rejected", societyId?: string): Promise<boolean> {
+    const sb = client();
+    if (societyId) {
+      const { data: bk } = await sb
+        .from("bookings")
+        .select("id, flat_id, flats(society_id)")
+        .eq("id", id)
+        .maybeSingle();
+      if (!bk || (bk as any)?.flats?.society_id !== societyId) {
+        return false;
+      }
+    }
+    const { error } = await sb
       .from("bookings")
       .update({ status: decision, decided_at: todayISO() })
       .eq("id", id)
@@ -585,27 +619,52 @@ export const db = {
       .order("created_at", { ascending: false });
     return ((data ?? []) as Visitor[]).map((v) => ({ ...v, flat: flatById.get(v.flat_id) }));
   },
-  async createVisitor(input: { flat_id: string; name: string; purpose: string; expected_on: string }): Promise<void> {
-    const code = Math.random().toString(36).slice(2, 8).toUpperCase();
-    await client().from("visitors").insert({
-      flat_id: input.flat_id,
-      name: input.name,
-      purpose: input.purpose,
-      entry_code: code,
-      status: "approved",
-      expected_on: input.expected_on,
-    });
+  async createVisitor(input: { flat_id: string; name: string; purpose: string; expected_on: string }): Promise<string> {
+    const sb = client();
+    // Cryptographically secure 6-char hex code with collision retry
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const code = crypto.randomBytes(3).toString("hex").toUpperCase();
+      const { error } = await sb.from("visitors").insert({
+        flat_id: input.flat_id,
+        name: input.name,
+        purpose: input.purpose,
+        entry_code: code,
+        status: "approved",
+        expected_on: input.expected_on,
+      });
+      if (!error) return code;
+      // If code unique constraint collision (23505), loop will try a new random code
+      if (error.code !== "23505") {
+        throw new Error(error.message);
+      }
+    }
+    throw new Error("Failed to generate a unique visitor entry code. Please try again.");
   },
-  async findVisitorByCode(code: string): Promise<Visitor | undefined> {
+  async findVisitorByCode(code: string, societyId?: string): Promise<Visitor | undefined> {
     const { data } = await client()
       .from("visitors")
-      .select("*")
+      .select("*, flats(society_id)")
       .eq("entry_code", code.toUpperCase())
       .maybeSingle();
-    return (data ?? undefined) as Visitor | undefined;
+    if (!data) return undefined;
+    if (societyId && (data as any)?.flats?.society_id !== societyId) {
+      return undefined;
+    }
+    return data as Visitor;
   },
-  async markVisitorEntered(id: string): Promise<boolean> {
-    const { error } = await client()
+  async markVisitorEntered(id: string, societyId?: string): Promise<boolean> {
+    const sb = client();
+    if (societyId) {
+      const { data: v } = await sb
+        .from("visitors")
+        .select("id, flat_id, flats(society_id)")
+        .eq("id", id)
+        .maybeSingle();
+      if (!v || (v as any)?.flats?.society_id !== societyId) {
+        return false;
+      }
+    }
+    const { error } = await sb
       .from("visitors")
       .update({ status: "entered", entered_at: todayISO() })
       .eq("id", id);

@@ -22,9 +22,9 @@ async function addContactAction(formData: FormData) {
 
 async function deleteContactAction(formData: FormData) {
   "use server";
-  await requireRole("admin");
+  const user = await requireRole("admin");
   const id = String(formData.get("id") ?? "");
-  if (id) await db.removeContact(id);
+  if (id) await db.removeContact(id, user.society_id);
   revalidatePath("/admin/contacts");
   redirect("/admin/contacts");
 }

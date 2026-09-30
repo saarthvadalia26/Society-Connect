@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0f172a;
-  --fg: #e2e8f0;
-  --foreground: 0 0% 100%;
-  --muted-foreground: 215 20.2% 65.1%;
+  --bg: #f8fafc;
+  --fg: #0f172a;
+  --foreground: 222.2 84% 4.9%;
+  --muted-foreground: 215.4 16.3% 46.9%;
   --sidebar-w: 260px;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .dark {

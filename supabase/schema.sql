@@ -148,6 +148,8 @@ create index if not exists visitors_code_idx on visitors(entry_code);
 create or replace view me as
 select * from app_users where id = auth.uid();
 
+alter view if exists me set (security_invoker = on);
+
 alter table app_users  enable row level security;
 alter table societies  enable row level security;
 alter table flats      enable row level security;
@@ -190,6 +192,16 @@ create policy app_users_self_update on app_users for update
   to authenticated
   using (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'))
   with check (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email'));
+
+-- Allow society admin to delete society.
+drop policy if exists societies_admin_delete on societies;
+create policy societies_admin_delete on societies for delete
+  using (id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'));
+
+-- Allow society admin to delete app_users in their society.
+drop policy if exists app_users_admin_delete on app_users;
+create policy app_users_admin_delete on app_users for delete
+  using (society_id in (select society_id from app_users where (id = auth.uid() or lower(email) = lower(auth.jwt() ->> 'email')) and role = 'admin'));
 
 -- Helper macro: same-society check inlined per table.
 drop policy if exists flats_read on flats;

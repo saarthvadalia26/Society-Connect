@@ -40,11 +40,20 @@ export function CollectionChart({ data, currency }: { data: MonthlyDatum[], curr
             y1={height - padY - pct * innerH}
             x2={width - padX}
             y2={height - padY - pct * innerH}
-            stroke="#f1f5f9"
+            stroke="currentColor"
+            className="text-slate-100 dark:text-slate-700/60"
             strokeWidth={1}
           />
         ))}
-        <line x1={padX} y1={height - padY} x2={width - padX} y2={height - padY} stroke="#e2e8f0" strokeWidth={1} />
+        <line
+          x1={padX}
+          y1={height - padY}
+          x2={width - padX}
+          y2={height - padY}
+          stroke="currentColor"
+          className="text-slate-200 dark:text-slate-700"
+          strokeWidth={1}
+        />
 
         {data.map((d, i) => {
           const x0 = padX + i * groupW + 8;

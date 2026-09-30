@@ -47,9 +47,9 @@ async function generateBillsAction(formData: FormData) {
 
 async function markPaidAction(formData: FormData) {
   "use server";
-  await requireRole("admin");
+  const user = await requireRole("admin");
   const billId = String(formData.get("billId") ?? "");
-  if (billId) await db.markBillPaid(billId);
+  if (billId) await db.markBillPaid(billId, user.society_id);
   revalidatePath("/admin/bills");
   redirect("/admin/bills");
 }
@@ -108,8 +108,7 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
                 defaultValue={currentPeriod()}
                 pattern="\d{4}-\d{2}"
                 placeholder="e.g. 2026-04"
-                style={{ color: '#0f172a' }}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium placeholder:text-slate-400 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400"
               />
             </div>
             <div>
@@ -120,8 +119,7 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
                 defaultValue={3000}
                 min={0}
                 placeholder="e.g. 3000"
-                style={{ color: '#0f172a' }}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium placeholder:text-slate-400 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-brand-400"
               />
             </div>
             <Button type="submit">Generate bills</Button>
@@ -135,12 +133,11 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
           subtitle={`${fmtCurrency(collected, user.currency)} collected · ${fmtCurrency(outstanding, user.currency)} outstanding`}
           action={
             <form className="flex items-center gap-2">
-              <label className="text-xs text-slate-500">Period</label>
+              <label className="text-xs text-slate-500 dark:text-slate-400">Period</label>
               <select
                 name="period"
                 defaultValue={period}
-                style={{ color: '#0f172a' }}
-                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-sm font-medium shadow-sm"
+                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-sm font-medium text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               >
                 {allPeriods.map((p) => (
                   <option key={p} value={p}>

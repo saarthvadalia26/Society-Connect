@@ -6,6 +6,7 @@ import type { User } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { useState } from "react";
 import { UserMenu } from "./user-menu";
+import { ThemeToggle } from "./theme-toggle";
 
 export interface NavItem {
   href: string;
@@ -13,22 +14,25 @@ export interface NavItem {
   icon?: string;
 }
 
-
 export function Sidebar({ user, items, brand }: { user: User; items: NavItem[]; brand: string }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navContent = (
     <>
-      <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-5 dark:border-slate-700">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-blue-700 text-sm font-bold text-white shadow-md">
-          SC
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-blue-700 text-sm font-bold text-white shadow-md">
+            SC
+          </div>
+          <div className="min-w-0">
+            <div className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">Society Connect</div>
+            <div className="truncate text-[11px] text-slate-500 dark:text-slate-400">{brand}</div>
+          </div>
         </div>
-        <div className="min-w-0">
-          <div className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">Society Connect</div>
-          <div className="truncate text-[11px] text-slate-500 dark:text-slate-400">{brand}</div>
-        </div>
+        <ThemeToggle />
       </div>
+
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {items.map((item) => {
           // A nav item is a "parent" if any other sibling item starts with its href + "/".
@@ -57,7 +61,8 @@ export function Sidebar({ user, items, brand }: { user: User; items: NavItem[]; 
           );
         })}
       </nav>
-      <div className="border-t border-slate-100 px-3 py-3 dark:border-slate-700">
+
+      <div className="border-t border-slate-100 px-3 py-3 dark:border-slate-800">
         <UserMenu user={user} />
       </div>
     </>
@@ -65,25 +70,38 @@ export function Sidebar({ user, items, brand }: { user: User; items: NavItem[]; 
 
   return (
     <>
-      {/* Mobile hamburger */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="fixed left-4 top-4 z-40 rounded-lg border border-slate-200 bg-white p-2 shadow-sm lg:hidden dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-        aria-label="Open menu"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M3 12h18M3 6h18M3 18h18" />
-        </svg>
-      </button>
+      {/* Mobile Top Header Bar */}
+      <header className="fixed top-0 left-0 right-0 z-30 flex h-14 items-center justify-between border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur-md lg:hidden dark:border-slate-800 dark:bg-slate-900/95">
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+          aria-label="Open menu"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 12h18M3 6h18M3 18h18" />
+          </svg>
+        </button>
 
-      {/* Mobile overlay */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-brand-600 to-blue-700 text-xs font-bold text-white shadow-sm shrink-0">
+            SC
+          </div>
+          <span className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate max-w-[180px] sm:max-w-xs">
+            {brand || "Society Connect"}
+          </span>
+        </div>
+
+        <ThemeToggle />
+      </header>
+
+      {/* Mobile drawer overlay */}
       {mobileOpen ? (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <aside className="relative flex h-full w-72 flex-col border-r border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <aside className="relative flex h-full w-72 flex-col border-r border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
             <button
               onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-3 rounded-md p-1 text-slate-400 hover:text-slate-600"
+              className="absolute right-3.5 top-4 rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               aria-label="Close menu"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -95,8 +113,8 @@ export function Sidebar({ user, items, brand }: { user: User; items: NavItem[]; 
         </div>
       ) : null}
 
-      {/* Desktop sidebar */}
-      <aside className="hidden w-64 flex-col border-r border-slate-100 bg-white lg:flex dark:border-slate-700 dark:bg-slate-900">
+      {/* Desktop sticky sidebar */}
+      <aside className="hidden w-64 flex-col border-r border-slate-200/80 bg-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:overflow-y-auto dark:border-slate-800 dark:bg-slate-900">
         {navContent}
       </aside>
     </>
@@ -105,12 +123,12 @@ export function Sidebar({ user, items, brand }: { user: User; items: NavItem[]; 
 
 export function PageHeader({ title, description, action }: { title: string; description?: string; action?: React.ReactNode }) {
   return (
-    <div className="mb-8 flex items-start justify-between gap-4">
+    <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{title}</h1>
-        {description ? <p className="mt-1.5 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{description}</p> : null}
+        {description ? <p className="mt-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{description}</p> : null}
       </div>
-      {action}
+      {action ? <div className="shrink-0">{action}</div> : null}
     </div>
   );
 }

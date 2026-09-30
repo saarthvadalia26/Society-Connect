@@ -17,7 +17,10 @@ const items: NavItem[] = [
 export default async function ResidentLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.role !== "resident") redirect("/admin");
+  if (user.role !== "resident") {
+    if (user.role === "guard") redirect("/guard");
+    redirect("/admin");
+  }
   const society = await db.getSociety(user.society_id);
   return (
     <div className="flex min-h-screen bg-slate-50/50 dark:bg-slate-950">

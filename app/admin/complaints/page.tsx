@@ -7,9 +7,9 @@ import { PageHeader } from "@/components/nav";
 
 async function resolveAction(formData: FormData) {
   "use server";
-  await requireRole("admin");
+  const user = await requireRole("admin");
   const id = String(formData.get("id") ?? "");
-  if (id) await db.resolveComplaint(id);
+  if (id) await db.resolveComplaint(id, user.society_id);
   revalidatePath("/admin/complaints");
   redirect("/admin/complaints");
 }

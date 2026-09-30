@@ -19,10 +19,9 @@ export function RegistrationWizard() {
 
   const handleNext = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Basic frontend validation for Step 1 before sliding
     if (!name || !email || !password || password.length < 6) {
       toast.error("Registration Incomplete", { 
-        description: "Please ensure all fields (including currency) are filled correctly." 
+        description: "Please fill in your name, valid email, and a password of at least 6 characters." 
       });
       return;
     }
@@ -35,29 +34,34 @@ export function RegistrationWizard() {
         <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-indigo-800 text-xl font-bold text-white shadow-lg lg:mx-0 lg:hidden">
           SC
         </div>
-        <h1 className="text-2xl font-bold text-slate-100 tracking-tight">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
           Create your society
         </h1>
-        <p className="mt-2 text-sm text-slate-400">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           {step === 1 ? "Start by setting up your admin account." : "Now, tell us about your society."}
         </p>
       </div>
 
       {/* Progress Indicator */}
       <div className="mb-6 flex items-center gap-2">
-        <div className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${step >= 1 ? 'bg-brand-600' : 'bg-slate-800'}`} />
-        <div className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${step >= 2 ? 'bg-brand-600' : 'bg-slate-800'}`} />
+        <div className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${step >= 1 ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-800'}`} />
+        <div className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${step >= 2 ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-800'}`} />
       </div>
 
-      <Card className="border-slate-800 bg-slate-950/70 backdrop-blur shadow-2xl shadow-black/40 relative overflow-hidden">
+      <Card className="border-slate-200 bg-white/95 backdrop-blur shadow-xl dark:border-slate-800 dark:bg-slate-950/70 dark:shadow-2xl dark:shadow-black/40 relative overflow-hidden">
         <CardBody className="p-6 md:p-8">
-          <form action={formAction} className="relative min-h-[300px]">
-            
+          {state?.error ? (
+            <div className="mb-5 rounded-lg border border-red-500/30 bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300 font-medium">
+              {state.error}
+            </div>
+          ) : null}
+
+          <form action={formAction} className="relative min-h-[320px]">
             {/* Step 1: Personal Info */}
-            <div className={`absolute top-0 w-full transition-all duration-400 ${step === 1 ? 'animate-slide-in-left opacity-100 z-10' : 'opacity-0 -translate-x-full pointer-events-none z-0'}`}>
-              <div className="mb-4 flex items-center gap-2 text-brand-400 mb-6">
+            <div className={`transition-all duration-300 ${step === 1 ? 'opacity-100 block' : 'opacity-0 hidden pointer-events-none'}`}>
+              <div className="mb-6 flex items-center gap-2 text-brand-600 dark:text-brand-400">
                 <User className="h-5 w-5" />
-                <h2 className="font-semibold text-slate-200 text-sm uppercase tracking-wider">Your Details</h2>
+                <h2 className="font-semibold text-slate-800 dark:text-slate-200 text-sm uppercase tracking-wider">Your Details</h2>
               </div>
               <div className="space-y-4">
                 <div>
@@ -85,10 +89,10 @@ export function RegistrationWizard() {
             </div>
 
             {/* Step 2: Society Info */}
-            <div className={`absolute top-0 w-full transition-all duration-400 ${step === 2 ? 'animate-slide-in-right opacity-100 z-10' : 'opacity-0 translate-x-full pointer-events-none z-0'}`}>
-              <div className="mb-4 flex items-center gap-2 text-brand-400 mb-6">
+            <div className={`transition-all duration-300 ${step === 2 ? 'opacity-100 block' : 'opacity-0 hidden pointer-events-none'}`}>
+              <div className="mb-6 flex items-center gap-2 text-brand-600 dark:text-brand-400">
                 <Building className="h-5 w-5" />
-                <h2 className="font-semibold text-slate-200 text-sm uppercase tracking-wider">Society Details</h2>
+                <h2 className="font-semibold text-slate-800 dark:text-slate-200 text-sm uppercase tracking-wider">Society Details</h2>
               </div>
               <div className="space-y-4">
                 <div>
@@ -105,7 +109,7 @@ export function RegistrationWizard() {
                     id="currency"
                     name="currency"
                     defaultValue="INR"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-100 shadow-sm transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-brand-400"
                   >
                     <option value="INR">Indian Rupee (₹ - INR)</option>
                     <option value="USD">US Dollar ($ - USD)</option>
@@ -114,17 +118,11 @@ export function RegistrationWizard() {
                   </select>
                 </div>
 
-                {state?.error ? (
-                  <div className="mt-4 rounded-lg border border-red-500/30 bg-red-950/40 px-4 py-3 text-sm text-red-300 font-medium">
-                    {state.error}
-                  </div>
-                ) : null}
-
                 <div className="pt-2 flex gap-3">
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-700"
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   >
                     Back
                   </button>
@@ -141,9 +139,9 @@ export function RegistrationWizard() {
         </CardBody>
       </Card>
 
-      <p className="mt-8 text-center text-sm text-slate-400">
+      <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
         Already registered?{" "}
-        <a href="/login" className="font-semibold text-slate-200 transition-colors hover:text-brand-400">
+        <a href="/login" className="font-semibold text-brand-600 hover:text-brand-700 dark:text-slate-200 dark:hover:text-brand-400 transition-colors">
           Sign in to your account
         </a>
       </p>

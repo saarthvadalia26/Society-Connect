@@ -50,20 +50,20 @@ async function addFacilityAction(formData: FormData) {
 
 async function removeFacilityAction(formData: FormData) {
   "use server";
-  await requireRole("admin");
+  const user = await requireRole("admin");
   const id = String(formData.get("id") ?? "");
-  if (id) await supabaseServer().from("facilities").delete().eq("id", id);
+  if (id) await supabaseServer().from("facilities").delete().eq("id", id).eq("society_id", user.society_id);
   revalidatePath("/admin/facilities");
   redirect("/admin/facilities");
 }
 
 async function decideAction(formData: FormData) {
   "use server";
-  await requireRole("admin");
+  const user = await requireRole("admin");
   const id = String(formData.get("id") ?? "");
   const decision = String(formData.get("decision") ?? "") as "approved" | "rejected";
   if (id && (decision === "approved" || decision === "rejected")) {
-    await db.decideBooking(id, decision);
+    await db.decideBooking(id, decision, user.society_id);
   }
   revalidatePath("/admin/facilities");
   redirect("/admin/facilities");

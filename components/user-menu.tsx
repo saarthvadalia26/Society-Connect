@@ -85,16 +85,23 @@ export function UserMenu({ user }: { user: User }) {
                       >
                         Cancel
                       </button>
-                      <button
-                        onClick={async () => {
-                          setDeleting(true);
-                          await deleteSocietyAction();
-                        }}
-                        disabled={deleting}
-                        className="flex-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-60"
-                      >
-                        {deleting ? "Deleting..." : "Yes, delete"}
-                      </button>
+                      <form action={deleteSocietyAction} className="flex-1">
+                        <button
+                          type="submit"
+                          disabled={deleting}
+                          onClick={() => setDeleting(true)}
+                          className="w-full rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-60 flex items-center justify-center gap-1.5"
+                        >
+                          {deleting ? (
+                            <>
+                              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                              <span>Deleting...</span>
+                            </>
+                          ) : (
+                            "Yes, delete"
+                          )}
+                        </button>
+                      </form>
                     </div>
                   </div>
                 )}

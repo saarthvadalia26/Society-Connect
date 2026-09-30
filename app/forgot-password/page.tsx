@@ -14,8 +14,9 @@ async function resetAction(formData: FormData) {
     redirect("/forgot-password?error=" + encodeURIComponent("Email is required."));
   }
   const supabase = supabaseServer();
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, "");
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL ? "" : "http://localhost:3001"}/reset-password`,
+    redirectTo: `${appUrl}/reset-password`,
   });
   if (error) {
     redirect("/forgot-password?error=" + encodeURIComponent(error.message));
