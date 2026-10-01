@@ -1,7 +1,7 @@
-// Supabase clients for browser, server components/actions, and middleware.
+// Supabase clients for server components/actions and middleware.
+// For browser/client components, use "@/lib/supabase-browser" instead.
 import { createClient } from "@supabase/supabase-js";
 import {
-  createBrowserClient,
   createServerClient,
   type CookieOptions,
 } from "@supabase/ssr";
@@ -15,10 +15,6 @@ const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) {
   // Fail loudly during build/dev so missing env vars don't silently bypass auth.
   console.warn("[supabase] NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is missing");
-}
-
-export function supabaseBrowser() {
-  return createBrowserClient(url, key);
 }
 
 /**

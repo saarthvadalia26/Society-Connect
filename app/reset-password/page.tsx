@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabase";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 import { Card, CardBody, Label } from "@/components/ui";
 import { SubmitButton } from "@/components/submit-button";
 import { PasswordInput } from "@/components/password-input";
