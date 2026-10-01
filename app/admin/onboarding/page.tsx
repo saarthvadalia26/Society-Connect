@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Card, CardBody, CardHeader, Badge } from "@/components/ui";
 import { PageHeader } from "@/components/nav";
+import { DeleteSocietyButton } from "@/components/delete-society-button";
 
 export default async function OnboardingPage() {
   const user = await requireRole("admin");
@@ -113,6 +114,21 @@ export default async function OnboardingPage() {
             </Card>
           </Link>
         ))}
+      </div>
+
+      {/* Danger Zone */}
+      <div className="mt-12 pt-6 border-t border-red-200/60 dark:border-red-900/40">
+        <div className="rounded-xl border border-red-200 bg-red-50/50 p-5 dark:border-red-900/40 dark:bg-red-950/20">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="text-sm font-bold text-red-900 dark:text-red-300">Danger Zone: Delete Society</div>
+              <p className="mt-1 text-xs text-red-700 dark:text-red-400 max-w-xl">
+                Permanently remove this society and purge all members, login accounts, flats, maintenance bills, and records. Requires admin authentication.
+              </p>
+            </div>
+            <DeleteSocietyButton societyName={user.society_name} />
+          </div>
+        </div>
       </div>
     </div>
   );

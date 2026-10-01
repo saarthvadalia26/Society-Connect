@@ -20,6 +20,7 @@ export interface User {
   society_id: string;
   currency: string;
   flat_id: string | null;
+  society_name?: string;
 }
 
 export interface Flat {
