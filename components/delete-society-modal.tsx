@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { deleteSocietyAction } from "@/lib/actions";
 import { PasswordInput } from "@/components/password-input";
 import { Input, Label } from "@/components/ui";
@@ -16,12 +17,39 @@ export function DeleteSocietyModal({
   onClose,
   societyName,
 }: DeleteSocietyModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmName, setConfirmName] = useState("");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape" && !isPending) {
+        onClose();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, isPending, onClose]);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const nameMatches = confirmName.trim().toLowerCase() === societyName.trim().toLowerCase();
   const canSubmit = password.length > 0 && nameMatches && !isPending;
@@ -59,20 +87,23 @@ export function DeleteSocietyModal({
     });
   };
 
-  return (
+  const modalContent = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-society-title"
+      onClick={() => {
+        if (!isPending) onClose();
+      }}
     >
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-red-200 bg-white p-6 shadow-2xl dark:border-red-900/40 dark:bg-slate-900"
+        className="relative w-full max-w-lg rounded-2xl border border-red-200 bg-white p-6 shadow-2xl dark:border-red-900/50 dark:bg-slate-900 text-left"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Icon + Title */}
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400 shadow-sm">
             <svg
               width="24"
               height="24"
@@ -222,4 +253,6 @@ export function DeleteSocietyModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
