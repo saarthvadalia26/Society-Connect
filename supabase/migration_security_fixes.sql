@@ -80,6 +80,7 @@ drop policy if exists visitors_guard_admin_update on visitors;
 -- ============================================================
 
 -- Users can only update their own row and CANNOT modify their role or society_id
+drop policy if exists app_users_self_update on app_users;
 create policy app_users_self_update on app_users for update
   to authenticated
   using (email = (select email from auth.users where id = auth.uid()))
@@ -90,6 +91,7 @@ create policy app_users_self_update on app_users for update
   );
 
 -- Admins can manage users within their own society
+drop policy if exists app_users_admin_write on app_users;
 create policy app_users_admin_write on app_users for all
   to authenticated
   using (
@@ -104,6 +106,7 @@ create policy app_users_admin_write on app_users for all
 -- ============================================================
 -- 4. Flats: Only admin can write to flats within their own society
 -- ============================================================
+drop policy if exists flats_write on flats;
 create policy flats_write on flats for all
   to authenticated
   using ((current_app_user()).role = 'admin' and society_id = (current_app_user()).society_id)
@@ -112,6 +115,7 @@ create policy flats_write on flats for all
 -- ============================================================
 -- 5. Bills: Admins manage bills for their flats
 -- ============================================================
+drop policy if exists bills_admin_write on bills;
 create policy bills_admin_write on bills for all
   to authenticated
   using (
@@ -126,6 +130,7 @@ create policy bills_admin_write on bills for all
 -- ============================================================
 -- 6. Expenses: Admins manage expenses for their society
 -- ============================================================
+drop policy if exists expenses_admin_write on expenses;
 create policy expenses_admin_write on expenses for all
   to authenticated
   using ((current_app_user()).role = 'admin' and society_id = (current_app_user()).society_id)
@@ -134,6 +139,7 @@ create policy expenses_admin_write on expenses for all
 -- ============================================================
 -- 7. Notices: Admins manage notices for their society
 -- ============================================================
+drop policy if exists notices_admin_write on notices;
 create policy notices_admin_write on notices for all
   to authenticated
   using ((current_app_user()).role = 'admin' and society_id = (current_app_user()).society_id)
@@ -142,6 +148,7 @@ create policy notices_admin_write on notices for all
 -- ============================================================
 -- 8. Contacts: Admins manage contacts for their society
 -- ============================================================
+drop policy if exists contacts_admin_write on contacts;
 create policy contacts_admin_write on contacts for all
   to authenticated
   using ((current_app_user()).role = 'admin' and society_id = (current_app_user()).society_id)
@@ -150,6 +157,7 @@ create policy contacts_admin_write on contacts for all
 -- ============================================================
 -- 9. Facilities: Admins manage facilities for their society
 -- ============================================================
+drop policy if exists facilities_admin_write on facilities;
 create policy facilities_admin_write on facilities for all
   to authenticated
   using ((current_app_user()).role = 'admin' and society_id = (current_app_user()).society_id)
@@ -158,6 +166,7 @@ create policy facilities_admin_write on facilities for all
 -- ============================================================
 -- 10. Bookings: Residents can request for their flat; Admins manage
 -- ============================================================
+drop policy if exists bookings_resident_write on bookings;
 create policy bookings_resident_write on bookings for insert
   to authenticated
   with check (
@@ -165,6 +174,7 @@ create policy bookings_resident_write on bookings for insert
     and facility_id in (select id from facilities where society_id = (current_app_user()).society_id)
   );
 
+drop policy if exists bookings_admin_manage on bookings;
 create policy bookings_admin_manage on bookings for update
   to authenticated
   using (
@@ -179,12 +189,14 @@ create policy bookings_admin_manage on bookings for update
 -- ============================================================
 -- 11. Complaints: Residents create for their flat; Admins resolve
 -- ============================================================
+drop policy if exists complaints_resident_insert on complaints;
 create policy complaints_resident_insert on complaints for insert
   to authenticated
   with check (
     flat_id = (current_app_user()).flat_id
   );
 
+drop policy if exists complaints_admin_manage on complaints;
 create policy complaints_admin_manage on complaints for update
   to authenticated
   using (
@@ -199,12 +211,14 @@ create policy complaints_admin_manage on complaints for update
 -- ============================================================
 -- 12. Visitors: Residents create for their flat; Guards/Admins update status
 -- ============================================================
+drop policy if exists visitors_resident_insert on visitors;
 create policy visitors_resident_insert on visitors for insert
   to authenticated
   with check (
     flat_id = (current_app_user()).flat_id
   );
 
+drop policy if exists visitors_guard_admin_update on visitors;
 create policy visitors_guard_admin_update on visitors for update
   to authenticated
   using (
