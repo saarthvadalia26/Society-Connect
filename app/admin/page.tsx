@@ -24,22 +24,20 @@ export default async function AdminDashboard() {
   const openComplaints = allComplaints.filter((c) => c.status === "open");
   const recentNotices = allNotices.slice(0, 3);
 
-  const society = await db.getSociety(user.society_id);
-
   return (
     <div>
       <PageHeader
-        title={`${society?.name ?? "Dashboard"}`}
+        title={`${user.society_name ?? "Dashboard"}`}
         description={`${fmtPeriod(period)} — at-a-glance view of collections, expenses, and open issues.`}
       />
 
       {/* Quick actions */}
       <div className="mb-6 flex flex-wrap gap-2">
-        <Link href="/admin/bills"><Button variant="primary">Generate bills</Button></Link>
-        <Link href="/admin/notices"><Button variant="secondary">Post notice</Button></Link>
-        <Link href="/admin/members"><Button variant="secondary">Add member</Button></Link>
-        <Link href="/admin/expenses"><Button variant="secondary">Log expense</Button></Link>
-        <Link href="/admin/reports"><Button variant="secondary">Download report</Button></Link>
+        <Link href="/admin/bills" prefetch={true}><Button variant="primary">Generate bills</Button></Link>
+        <Link href="/admin/notices" prefetch={true}><Button variant="secondary">Post notice</Button></Link>
+        <Link href="/admin/members" prefetch={true}><Button variant="secondary">Add member</Button></Link>
+        <Link href="/admin/expenses" prefetch={true}><Button variant="secondary">Log expense</Button></Link>
+        <Link href="/admin/reports" prefetch={true}><Button variant="secondary">Download report</Button></Link>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -3,6 +3,7 @@
 // All methods are async (return Promises) — call sites must `await` them.
 //
 import crypto from "node:crypto";
+import { cache } from "react";
 import { supabaseServer, supabaseAdmin } from "./supabase";
 import type {
   Bill,
@@ -52,27 +53,27 @@ async function nextSerial(): Promise<string> {
 
 export const db = {
   // Users
-  async listUsers(societyId: string): Promise<User[]> {
+  listUsers: cache(async (societyId: string): Promise<User[]> => {
     const { data } = await client()
       .from("app_users")
       .select("*")
       .eq("society_id", societyId)
       .order("name");
     return (data ?? []) as User[];
-  },
-  async getUser(id: string): Promise<User | undefined> {
+  }),
+  getUser: cache(async (id: string): Promise<User | undefined> => {
     const { data } = await client().from("app_users").select("*").eq("id", id).maybeSingle();
     return (data ?? undefined) as User | undefined;
-  },
+  }),
 
   // Society
-  async getSociety(id: string): Promise<Society | undefined> {
+  getSociety: cache(async (id: string): Promise<Society | undefined> => {
     const { data } = await client().from("societies").select("*").eq("id", id).maybeSingle();
     return (data ?? undefined) as Society | undefined;
-  },
+  }),
 
   // Flats
-  async listFlats(societyId: string): Promise<Flat[]> {
+  listFlats: cache(async (societyId: string): Promise<Flat[]> => {
     const { data } = await client()
       .from("flats")
       .select("*")
@@ -80,11 +81,11 @@ export const db = {
       .order("block")
       .order("number");
     return (data ?? []) as Flat[];
-  },
-  async getFlat(id: string): Promise<Flat | undefined> {
+  }),
+  getFlat: cache(async (id: string): Promise<Flat | undefined> => {
     const { data } = await client().from("flats").select("*").eq("id", id).maybeSingle();
     return (data ?? undefined) as Flat | undefined;
-  },
+  }),
   async addFlats(
     rows: Array<{ block: string; number: string; ownerEmail?: string; ownerName?: string }>,
     societyId: string,
@@ -149,10 +150,10 @@ export const db = {
   },
 
   // Bills
-  async listBills(societyId: string, period?: string, flatIds?: string[]): Promise<Bill[]> {
+  listBills: cache(async (societyId: string, period?: string, flatIds?: string[]): Promise<Bill[]> => {
     const sb = client();
     if (!flatIds) {
-      const flats = await this.listFlats(societyId);
+      const flats = await db.listFlats(societyId);
       flatIds = flats.map((f) => f.id);
     }
     if (flatIds.length === 0) return [];
@@ -160,19 +161,19 @@ export const db = {
     if (period) q = q.eq("period", period);
     const { data } = await q;
     return (data ?? []) as Bill[];
-  },
-  async listBillsForFlat(flatId: string): Promise<Bill[]> {
+  }),
+  listBillsForFlat: cache(async (flatId: string): Promise<Bill[]> => {
     const { data } = await client()
       .from("bills")
       .select("*")
       .eq("flat_id", flatId)
       .order("period", { ascending: false });
     return (data ?? []) as Bill[];
-  },
-  async getBill(id: string): Promise<Bill | undefined> {
+  }),
+  getBill: cache(async (id: string): Promise<Bill | undefined> => {
     const { data } = await client().from("bills").select("*").eq("id", id).maybeSingle();
     return (data ?? undefined) as Bill | undefined;
-  },
+  }),
   async generateBillsForPeriod(
     societyId: string,
     period: string,
@@ -413,34 +414,34 @@ export const db = {
   },
 
   // Expenses
-  async listExpenses(societyId: string): Promise<Expense[]> {
+  listExpenses: cache(async (societyId: string): Promise<Expense[]> => {
     const { data } = await client()
       .from("expenses")
       .select("*")
       .eq("society_id", societyId)
       .order("spent_on", { ascending: false });
     return (data ?? []) as Expense[];
-  },
+  }),
   async addExpense(input: Omit<Expense, "id">): Promise<void> {
     await client().from("expenses").insert(input);
   },
 
   // Notices
-  async listNotices(societyId: string): Promise<Notice[]> {
+  listNotices: cache(async (societyId: string): Promise<Notice[]> => {
     const { data } = await client()
       .from("notices")
       .select("*")
       .eq("society_id", societyId)
       .order("created_at", { ascending: false });
     return (data ?? []) as Notice[];
-  },
+  }),
   async addNotice(input: Omit<Notice, "id" | "created_at">): Promise<void> {
     await client().from("notices").insert(input);
   },
 
   // Complaints
-  async listComplaints(societyId: string): Promise<Array<Complaint & { flat: Flat | undefined }>> {
-    const flats = await this.listFlats(societyId);
+  listComplaints: cache(async (societyId: string): Promise<Array<Complaint & { flat: Flat | undefined }>> => {
+    const flats = await db.listFlats(societyId);
     const flatById = new Map(flats.map((f) => [f.id, f] as const));
     const flatIds = flats.map((f) => f.id);
     if (flatIds.length === 0) return [];
@@ -450,15 +451,15 @@ export const db = {
       .in("flat_id", flatIds)
       .order("created_at", { ascending: false });
     return ((data ?? []) as Complaint[]).map((c) => ({ ...c, flat: flatById.get(c.flat_id) }));
-  },
-  async listComplaintsForFlat(flatId: string): Promise<Complaint[]> {
+  }),
+  listComplaintsForFlat: cache(async (flatId: string): Promise<Complaint[]> => {
     const { data } = await client()
       .from("complaints")
       .select("*")
       .eq("flat_id", flatId)
       .order("created_at", { ascending: false });
     return (data ?? []) as Complaint[];
-  },
+  }),
   async addComplaint(input: {
     flat_id: string;
     category: string;
@@ -493,7 +494,7 @@ export const db = {
   },
 
   // Contacts
-  async listContacts(societyId: string): Promise<Contact[]> {
+  listContacts: cache(async (societyId: string): Promise<Contact[]> => {
     const { data } = await client()
       .from("contacts")
       .select("*")
@@ -501,7 +502,7 @@ export const db = {
       .order("role")
       .order("name");
     return (data ?? []) as Contact[];
-  },
+  }),
   async addContact(input: Omit<Contact, "id">): Promise<void> {
     await client().from("contacts").insert(input);
   },
@@ -513,18 +514,18 @@ export const db = {
   },
 
   // Facilities & bookings
-  async listFacilities(societyId: string): Promise<Facility[]> {
+  listFacilities: cache(async (societyId: string): Promise<Facility[]> => {
     const { data } = await client().from("facilities").select("*").eq("society_id", societyId).order("name");
     return (data ?? []) as Facility[];
-  },
-  async getFacility(id: string): Promise<Facility | undefined> {
+  }),
+  getFacility: cache(async (id: string): Promise<Facility | undefined> => {
     const { data } = await client().from("facilities").select("*").eq("id", id).maybeSingle();
     return (data ?? undefined) as Facility | undefined;
-  },
-  async listBookings(societyId: string): Promise<Array<Booking & { facility?: Facility; flat?: Flat }>> {
-    const facilities = await this.listFacilities(societyId);
+  }),
+  listBookings: cache(async (societyId: string): Promise<Array<Booking & { facility?: Facility; flat?: Flat }>> => {
+    const facilities = await db.listFacilities(societyId);
     const facById = new Map(facilities.map((f) => [f.id, f] as const));
-    const flats = await this.listFlats(societyId);
+    const flats = await db.listFlats(societyId);
     const flatById = new Map(flats.map((f) => [f.id, f] as const));
     const facIds = facilities.map((f) => f.id);
     if (facIds.length === 0) return [];
@@ -538,7 +539,7 @@ export const db = {
       facility: facById.get(b.facility_id),
       flat: flatById.get(b.flat_id),
     }));
-  },
+  }),
   async listBookingsForFlat(flatId: string): Promise<Array<Booking & { facility?: Facility }>> {
     const sb = client();
     const { data } = await sb

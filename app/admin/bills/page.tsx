@@ -59,12 +59,12 @@ export default async function AdminBillsPage({ searchParams }: { searchParams: {
   const period = searchParams.period ?? currentPeriod();
   const errorMsg = searchParams.error;
   const successMsg = searchParams.success;
-  const [bills, allBills, flats, owners] = await Promise.all([
-    db.listBills(user.society_id, period),
+  const [allBills, flats, owners] = await Promise.all([
     db.listBills(user.society_id),
     db.listFlats(user.society_id),
     db.listUsers(user.society_id),
   ]);
+  const bills = period ? allBills.filter((b) => b.period === period) : allBills;
   const allPeriods = Array.from(new Set(allBills.map((b) => b.period))).sort().reverse();
   const collected = bills.filter((b) => b.status === "paid").reduce((s, b) => s + b.amount, 0);
   const outstanding = bills.filter((b) => b.status === "unpaid").reduce((s, b) => s + b.amount, 0);

@@ -48,6 +48,7 @@ export function Sidebar({ user, items, brand }: { user: User; items: NavItem[]; 
             <Link
               key={item.href}
               href={item.href}
+              prefetch={true}
               onClick={() => setMobileOpen(false)}
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition",
